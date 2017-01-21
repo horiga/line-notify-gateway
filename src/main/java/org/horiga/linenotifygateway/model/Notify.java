@@ -56,10 +56,14 @@ public class Notify {
 
     public MultiValueMap<String, String> valueMap() {
         MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
-        valueMap.add("message", new StringBuilder()
+        String _message = new StringBuilder()
                 .append("Message from '").append(service).append("' service\n\n")
                 .append(message)
-                .toString());
+                .toString();
+        if (_message.length() >= 1000) {
+            _message = _message.substring(0, 950) + " ...";
+        }
+        valueMap.add("message", _message);
         if (StringUtils.isNotBlank(thumbnailUri) && (thumbnailUri.startsWith("http://") || thumbnailUri
                 .startsWith("https://"))) {
             valueMap.add("imageThumbnail", thumbnailUri);

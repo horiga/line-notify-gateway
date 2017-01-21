@@ -1,5 +1,10 @@
 package org.horiga.linenotifygateway.controller;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.horiga.linenotifygateway.model.Notify;
 import org.horiga.linenotifygateway.service.NotifyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/v1")
 @Slf4j
 public class NotifyGatewayRestController {
+
+    private static final Collection<String> parameterNames = Collections.unmodifiableSet(
+            Sets.newHashSet("notify_service", "message", "notify_token", "thumbnail_url", "image_url",
+                            "sticker"));
 
     private final NotifyService notifyService;
 
@@ -49,13 +60,16 @@ public class NotifyGatewayRestController {
             value = "/notify",
             method = { RequestMethod.GET, RequestMethod.POST })
     public ResponseEntity<ResponseMessage> handleEvents(
-            @RequestParam("service") String service,
+            @RequestParam("notify_service") String service,
             @RequestParam("message") String message,
             @RequestParam(name = "thumbnail_url", required = false, defaultValue = "") String thumbnailUrl,
             @RequestParam(name = "image_url", required = false, defaultValue = "") String imageUrl,
-            @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker
+            @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
+            HttpServletRequest request
     ) throws Exception {
-        notifyService.execute(new Notify(service, message, thumbnailUrl, imageUrl).addSticker(sticker));
+        notifyService.execute(
+                new Notify(service, buildMessage(service, message, request), thumbnailUrl, imageUrl)
+                        .addSticker(sticker));
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -63,15 +77,31 @@ public class NotifyGatewayRestController {
             value = "/notify-with-token",
             method = { RequestMethod.GET, RequestMethod.POST })
     public ResponseEntity<ResponseMessage> handleEvents(
-            @RequestParam("service") String service,
+            @RequestParam("notify_service") String service,
             @RequestParam("message") String message,
-            @RequestParam("token") String token,
+            @RequestParam("notify_token") String token,
             @RequestParam(name = "thumbnail_url", required = false, defaultValue = "") String thumbnailUrl,
             @RequestParam(name = "image_url", required = false, defaultValue = "") String imageUrl,
-            @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker
+            @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
+            HttpServletRequest request
     ) throws Exception {
-        notifyService.execute(new Notify(service, message, thumbnailUrl, imageUrl).addSticker(sticker),
-                              Splitter.on(",").omitEmptyStrings().trimResults().splitToList(token));
+        notifyService.execute(
+                new Notify(service, buildMessage(service, message, request), thumbnailUrl, imageUrl)
+                        .addSticker(sticker),
+                Splitter.on(",").omitEmptyStrings().trimResults().splitToList(token));
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
+    @SuppressWarnings("unused")
+    private static String buildMessage(String service, String message, HttpServletRequest request) {
+        final StringBuilder messageBuilder = new StringBuilder(message).append('\n');
+        request.getParameterMap().entrySet()
+                     .stream()
+                     .filter(entry -> !parameterNames.contains(entry.getKey()))
+                     .forEach(entry -> messageBuilder.append('\n')
+                                                     .append(entry.getKey())
+                                                     .append(": ")
+                                                     .append(Joiner.on(",").join(entry.getValue())));
+        return messageBuilder.toString();
     }
 }
