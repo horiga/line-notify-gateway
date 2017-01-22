@@ -18,10 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LineNotifyGatewayConfig {
 
-    private final Settings properties;
+    private final LineNotifyGatewayProperties properties;
 
     @Autowired
-    public LineNotifyGatewayConfig(Settings properties) {
+    public LineNotifyGatewayConfig(LineNotifyGatewayProperties properties) {
         this.properties = properties;
     }
 

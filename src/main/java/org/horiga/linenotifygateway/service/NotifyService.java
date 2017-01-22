@@ -3,7 +3,7 @@ package org.horiga.linenotifygateway.service;
 import java.net.URI;
 import java.util.List;
 
-import org.horiga.linenotifygateway.config.Settings;
+import org.horiga.linenotifygateway.config.LineNotifyGatewayProperties;
 import org.horiga.linenotifygateway.controller.NotifyGatewayRestController.ResponseMessage;
 import org.horiga.linenotifygateway.model.Notify;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +30,11 @@ public class NotifyService {
     @Autowired
     public NotifyService(
             @Qualifier("lineNotifyRestTemplate") RestTemplate restTemplate,
-            Settings settings
+            LineNotifyGatewayProperties properties
     ) {
         this.restTemplate = restTemplate;
-        endpointURI = settings.getEndpointUri();
-        accessToken = settings.getPersonalAccessToken();
+        endpointURI = properties.getEndpointUri();
+        accessToken = properties.getPersonalAccessToken();
     }
 
     public void execute(Notify notify) {
