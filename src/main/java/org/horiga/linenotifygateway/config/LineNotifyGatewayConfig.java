@@ -9,8 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+
+import com.google.common.base.Joiner;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,16 +36,17 @@ public class LineNotifyGatewayConfig {
                     @SuppressWarnings("RedundantThrowsDeclaration")
                     @Override
                     public void handleError(ClientHttpResponse response) throws IOException {
-                        try {
-                            super.handleError(response);
-                        } catch (RestClientResponseException e) {
-                            log.error("LINE Notify API Error: [{}] {}, http-response-headers: {}",
-                                      e.getRawStatusCode(),
-                                      e.getResponseBodyAsString(),
-                                      e.getResponseHeaders().values(),
-                                      e);
-                            throw e;
-                        }
+                        final StringBuilder s = new StringBuilder();
+                        response.getHeaders().entrySet()
+                                .forEach(header -> s.append(header.getKey())
+                                                    .append(": ")
+                                                    .append(Joiner.on(",")
+                                                                  .skipNulls()
+                                                                  .join(header.getValue())));
+                        log.warn("Receive LINE Notify API Error, [{} {}], HTTP Header: {}",
+                                 response.getStatusCode().value(),
+                                 response.getStatusText(), s);
+                        super.handleError(response);
                     }
                 })
                 .build();

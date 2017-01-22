@@ -1,4 +1,4 @@
-package org.horiga;
+package org.horiga.linenotifygateway;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
