@@ -2,6 +2,7 @@ package org.horiga.linenotifygateway.config;
 
 import java.io.IOException;
 
+import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,11 @@ public class LineNotifyGatewayConfig {
                     }
                 })
                 .build();
+    }
+
+    @Bean
+    WebhookServiceDispatcher webhookServiceDispatcher(ObjectMapper objectMapper) {
+        return new WebhookServiceDispatcher(objectMapper);
     }
 
 }

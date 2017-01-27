@@ -2,14 +2,19 @@ package org.horiga.linenotifygateway.controller;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.horiga.linenotifygateway.model.Notify;
 import org.horiga.linenotifygateway.service.NotifyService;
+import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +41,8 @@ public class NotifyGatewayRestController {
 
     private final NotifyService notifyService;
 
+    private final WebhookServiceDispatcher webhookServiceDispatcher;
+
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
@@ -52,8 +59,10 @@ public class NotifyGatewayRestController {
 
     @Autowired
     public NotifyGatewayRestController(
-            NotifyService notifyService) {
+            NotifyService notifyService,
+            WebhookServiceDispatcher webhookServiceDispatcher) {
         this.notifyService = notifyService;
+        this.webhookServiceDispatcher = webhookServiceDispatcher;
     }
 
     @RequestMapping(
@@ -92,6 +101,19 @@ public class NotifyGatewayRestController {
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
+    @RequestMapping(
+            value = "/{service}/payload",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseMessage> handleWebhookEvents(
+            @PathVariable("service") String service,
+            @RequestBody Map<String, Object> message,
+            HttpServletRequest request
+    ) {
+        webhookServiceDispatcher.dispatch(service, message, request);
+        return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
+    }
+
     @SuppressWarnings("unused")
     private static String buildMessage(String service, String message, HttpServletRequest request) {
         final StringBuilder messageBuilder = new StringBuilder(message).append('\n');
@@ -104,4 +126,6 @@ public class NotifyGatewayRestController {
                                                      .append(Joiner.on(",").join(entry.getValue())));
         return messageBuilder.toString();
     }
+
+
 }
