@@ -24,4 +24,6 @@ public class LineNotifyGatewayProperties {
 
     @Min(1000)
     private int readTimeout = 5000;
+
+    private String mustacheTemplatePath;
 }
