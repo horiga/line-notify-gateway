@@ -1,0 +1,26 @@
+line-notify:
+    personal-access-token: your_personal_access_token
+    endpoint-uri: https://notify-api.line.me/api/notify
+    data-path: data.json
+    mustache-template-path: templates/
+
+plugins:
+  line-notify:
+    gh:
+      event-types:
+        - create
+        - commit_comment
+        - issues
+        - issue_comment
+        - pull_request
+        - pull_request_review
+        - pull_request_review_comment
+        - release
+
+server:
+  port: 18081
+
+management:
+  port: 28081
+  add-application-context-header: false
+  context-path: /management

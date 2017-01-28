@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
-@ConfigurationProperties(prefix = "notify.line")
+@ConfigurationProperties(prefix = "line-notify")
 @Data
 @Component
 public class LineNotifyGatewayProperties {
