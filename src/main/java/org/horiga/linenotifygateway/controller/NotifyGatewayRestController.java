@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.horiga.linenotifygateway.model.Notify;
 import org.horiga.linenotifygateway.service.NotifyService;
 import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
+import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import lombok.AllArgsConstructor;
@@ -43,6 +45,8 @@ public class NotifyGatewayRestController {
 
     private final WebhookServiceDispatcher webhookServiceDispatcher;
 
+    private final MustacheMessageBuilder messageBuilder;
+
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
@@ -60,9 +64,11 @@ public class NotifyGatewayRestController {
     @Autowired
     public NotifyGatewayRestController(
             NotifyService notifyService,
-            WebhookServiceDispatcher webhookServiceDispatcher) {
+            WebhookServiceDispatcher webhookServiceDispatcher,
+            MustacheMessageBuilder messageBuilder) {
         this.notifyService = notifyService;
         this.webhookServiceDispatcher = webhookServiceDispatcher;
+        this.messageBuilder = messageBuilder;
     }
 
     @RequestMapping(
@@ -115,16 +121,19 @@ public class NotifyGatewayRestController {
     }
 
     @SuppressWarnings("unused")
-    private static String buildMessage(String service, String message, HttpServletRequest request) {
-        final StringBuilder messageBuilder = new StringBuilder(message).append('\n');
+    private String buildMessage(String service, String message, HttpServletRequest request) {
+        final StringBuilder sb = new StringBuilder(message).append('\n');
         request.getParameterMap().entrySet()
                      .stream()
                      .filter(entry -> !parameterNames.contains(entry.getKey()))
-                     .forEach(entry -> messageBuilder.append('\n')
+                     .forEach(entry -> sb.append('\n')
                                                      .append(entry.getKey())
                                                      .append(": ")
                                                      .append(Joiner.on(",").join(entry.getValue())));
-        return messageBuilder.toString();
+        Map<String, Object> scopes = Maps.newHashMap();
+        scopes.put("service", service);
+        scopes.put("message", sb.toString());
+        return messageBuilder.build("message.mustache", scopes);
     }
 
 

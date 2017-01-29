@@ -5,43 +5,38 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.horiga.linenotifygateway.model.Notify;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
 public class WebhookServiceDispatcher {
 
     private final ObjectMapper mapper;
 
-    private final MustacheMessageBuilder messageBuilder;
+    private final Map<String, WebhookHandler> webhookHandlers;
 
-    private final NotifyService notifyService;
+    private final WebhookHandler defaultWebhookHandler;
 
-    @Autowired
     public WebhookServiceDispatcher(ObjectMapper mapper,
-                                    MustacheMessageBuilder messageBuilder,
-                                    NotifyService notifyService) {
+                                    Map<String, WebhookHandler> webhookHandlers,
+                                    WebhookHandler defaultWebhookHandler) {
         this.mapper = mapper;
-        this.messageBuilder = messageBuilder;
-        this.notifyService = notifyService;
+        this.webhookHandlers = webhookHandlers;
+        this.defaultWebhookHandler = defaultWebhookHandler;
+        webhookHandlers.entrySet().forEach(entry -> log.info("Registered Webhook => serviceName: {}, handler: {}", entry.getKey(), entry.getValue()));
     }
 
     public void dispatch(String service, Map<String, Object> message, HttpServletRequest request) {
         try {
             printWebhookEvent(service, message, request);
-            // TODO: refactoring
-            notifyService.execute(
-                    new Notify("github.com", messageBuilder.build("pull_request.mustache", message),
-                               "", ""), ImmutableList.of(request.getParameter("notify_token")));
+            webhookHandlers.getOrDefault(service, defaultWebhookHandler).handleMessage(message, request);
         } catch (Exception e) {
             log.error("handle webhook event message dispatcher error!", e);
         }

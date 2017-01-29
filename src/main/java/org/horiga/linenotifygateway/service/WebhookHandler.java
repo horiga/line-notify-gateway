@@ -1,18 +1,20 @@
 package org.horiga.linenotifygateway.service;
 
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import lombok.Getter;
 
 public abstract class WebhookHandler {
 
     @Getter
-    private final String serviceName;
+    private final String webhookServiceName;
 
-    private final NotifyService notifyService;
-
-    protected WebhookHandler(String serviceName, NotifyService notifyService) {
-        this.serviceName = serviceName;
-        this.notifyService = notifyService;
+    protected WebhookHandler(String webhookServiceName) {
+        this.webhookServiceName = webhookServiceName;
     }
 
+    public abstract void handleMessage(Map<String, Object> message, HttpServletRequest request) throws Exception;
 
 }

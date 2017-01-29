@@ -9,7 +9,6 @@ plugins:
     github:
       event-types:
         - create
-        - commit_comment
         - issues
         - issue_comment
         - pull_request

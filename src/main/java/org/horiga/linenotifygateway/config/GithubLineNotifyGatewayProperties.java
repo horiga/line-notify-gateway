@@ -13,4 +13,6 @@ import lombok.Data;
 public class GithubLineNotifyGatewayProperties {
 
     private List<String> eventTypes;
+
+    private String notifyAccessToken = "";
 }

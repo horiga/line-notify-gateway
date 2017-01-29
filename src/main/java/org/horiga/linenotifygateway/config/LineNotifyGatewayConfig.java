@@ -1,7 +1,13 @@
 package org.horiga.linenotifygateway.config;
 
 import java.io.IOException;
+import java.util.Map;
 
+import org.horiga.linenotifygateway.service.BasicWebhookHandler;
+import org.horiga.linenotifygateway.service.GithubWebhookHandler;
+import org.horiga.linenotifygateway.service.NotifyService;
+import org.horiga.linenotifygateway.service.WebhookHandler;
+import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -12,7 +18,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,9 +30,13 @@ public class LineNotifyGatewayConfig {
 
     private final LineNotifyGatewayProperties properties;
 
+    private final GithubLineNotifyGatewayProperties githubProperties;
+
     @Autowired
-    public LineNotifyGatewayConfig(LineNotifyGatewayProperties properties) {
+    public LineNotifyGatewayConfig(LineNotifyGatewayProperties properties,
+                                   GithubLineNotifyGatewayProperties githubProperties) {
         this.properties = properties;
+        this.githubProperties = githubProperties;
     }
 
     @Bean(name = "lineNotifyRestTemplate")
@@ -56,5 +68,19 @@ public class LineNotifyGatewayConfig {
     @Bean
     MustacheMessageBuilder mustacheMessageBuilder() {
         return new MustacheMessageBuilder(properties.getMustacheTemplatePath());
+    }
+
+    @Bean
+    GithubWebhookHandler githubWebhookHandler(NotifyService notifyService, ObjectMapper mapper) {
+        return new GithubWebhookHandler(notifyService, githubProperties, mustacheMessageBuilder(), mapper);
+    }
+
+    @Bean
+    WebhookServiceDispatcher webhookServiceDispatcher(
+            ObjectMapper mapper, GithubWebhookHandler githubWebhookHandler) {
+        WebhookHandler defaultWebhookHandler = new BasicWebhookHandler();
+        final Map<String, WebhookHandler> webhookHandlers = Maps.newHashMap();
+        webhookHandlers.put(githubWebhookHandler.getWebhookServiceName(), githubWebhookHandler);
+        return new WebhookServiceDispatcher(mapper, webhookHandlers, defaultWebhookHandler);
     }
 }
