@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
-@ConfigurationProperties(prefix = "notify.line")
+@ConfigurationProperties(prefix = "line-notify")
 @Data
 @Component
 public class LineNotifyGatewayProperties {
@@ -24,4 +24,6 @@ public class LineNotifyGatewayProperties {
 
     @Min(1000)
     private int readTimeout = 5000;
+
+    private String mustacheTemplatePath;
 }

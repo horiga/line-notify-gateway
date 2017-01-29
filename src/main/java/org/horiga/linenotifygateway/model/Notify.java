@@ -54,30 +54,4 @@ public class Notify {
         this.stickerPackageId = stickerPackageId;
     }
 
-    public MultiValueMap<String, String> valueMap() {
-        MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
-        String _message = new StringBuilder()
-                .append("Message from '").append(service).append("' service\n\n")
-                .append(message)
-                .toString();
-        if (_message.length() >= 1000) {
-            _message = _message.substring(0, 950) + " ...";
-        }
-        valueMap.add("message", _message);
-        if (StringUtils.isNotBlank(thumbnailUri) && (thumbnailUri.startsWith("http://") || thumbnailUri
-                .startsWith("https://"))) {
-            valueMap.add("imageThumbnail", thumbnailUri);
-        }
-        if (StringUtils.isNotBlank(imageUri) && (imageUri.startsWith("http://") || imageUri
-                .startsWith("https://"))) {
-            valueMap.add("imageFullsize", imageUri);
-        }
-        if (StringUtils.isNotBlank(stickerPackageId) && StringUtils.isNumeric(stickerPackageId)) {
-            valueMap.add("stickerPackageId", stickerPackageId);
-        }
-        if (StringUtils.isNotBlank(stickerId) && StringUtils.isNumeric(stickerId)) {
-            valueMap.add("stickerId", stickerId);
-        }
-        return valueMap;
-    }
 }
