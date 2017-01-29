@@ -6,7 +6,7 @@ line-notify:
 
 plugins:
   line-notify:
-    gh:
+    github:
       event-types:
         - create
         - commit_comment

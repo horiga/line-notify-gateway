@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
-@ConfigurationProperties(prefix = "plugins.line-notify.gh")
+@ConfigurationProperties(prefix = "plugins.line-notify.github")
 @Data
 @Component
 public class GithubLineNotifyGatewayProperties {
