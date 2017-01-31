@@ -1,4 +1,4 @@
-package org.horiga.linenotifygateway.model;
+package org.horiga.linenotifygateway.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

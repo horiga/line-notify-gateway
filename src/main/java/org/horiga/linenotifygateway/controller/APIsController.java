@@ -9,8 +9,8 @@ import javax.validation.constraints.Pattern;
 
 import org.horiga.linenotifygateway.controller.APIsController.Forms.ServiceForm;
 import org.horiga.linenotifygateway.controller.APIsController.Forms.TokenForm;
-import org.horiga.linenotifygateway.model.ServiceEntity;
-import org.horiga.linenotifygateway.model.TokenEntity;
+import org.horiga.linenotifygateway.entity.ServiceEntity;
+import org.horiga.linenotifygateway.entity.TokenEntity;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
 import org.horiga.linenotifygateway.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;

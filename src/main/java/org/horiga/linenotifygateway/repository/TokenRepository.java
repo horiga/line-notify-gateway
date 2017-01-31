@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.horiga.linenotifygateway.model.TokenEntity;
+import org.horiga.linenotifygateway.entity.TokenEntity;
 
 @Mapper
 public interface TokenRepository {
