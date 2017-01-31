@@ -21,7 +21,7 @@ server:
 management:
   port: 28081
   add-application-context-header: false
-  context-path: /management
+  context-path: /spring-actuator
 
 spring:
   freemarker:
