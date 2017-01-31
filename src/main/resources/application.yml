@@ -30,5 +30,15 @@ spring:
     settings:
       template_exception_handler: rethrow
       default_encoding: UTF-8
+  datasource:
+    hikari:
+      driver-class-name: org.h2.jdbcx.JdbcDataSource
+      jdbc-url: jdbc:h2:file:/tmp/lng.h2db;MODE=MYSQL;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS "public"
+      username: sa
+      password:
+      connection-timeout: 3000
 
+mybatis:
+  configuration:
+    cache-enabled: false
 

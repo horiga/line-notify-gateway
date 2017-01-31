@@ -6,9 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.horiga.linenotifygateway.config.LineNotifyGatewayProperties;
-import org.horiga.linenotifygateway.controller.NotifyGatewayRestController.ResponseMessage;
+import org.horiga.linenotifygateway.controller.NotifyController.ResponseMessage;
 import org.horiga.linenotifygateway.model.Notify;
-import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.metrics.GaugeService;

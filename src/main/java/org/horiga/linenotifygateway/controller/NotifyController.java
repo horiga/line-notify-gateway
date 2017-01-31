@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/v1")
 @Slf4j
-public class NotifyGatewayRestController {
+public class NotifyController {
 
     private static final Collection<String> parameterNames = Collections.unmodifiableSet(
             Sets.newHashSet("notify_service", "message", "notify_token", "thumbnail_url", "image_url",
@@ -62,7 +62,7 @@ public class NotifyGatewayRestController {
     }
 
     @Autowired
-    public NotifyGatewayRestController(
+    public NotifyController(
             NotifyService notifyService,
             WebhookServiceDispatcher webhookServiceDispatcher,
             MustacheMessageBuilder messageBuilder) {
