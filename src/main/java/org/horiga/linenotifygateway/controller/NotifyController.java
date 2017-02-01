@@ -113,10 +113,11 @@ public class NotifyController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseMessage> handleWebhookEvents(
             @PathVariable("service") String service,
+            @RequestParam(name="token_key", required = false, defaultValue = "") String tokenKey,
             @RequestBody Map<String, Object> message,
             HttpServletRequest request
     ) {
-        webhookServiceDispatcher.dispatch(service, message, request);
+        webhookServiceDispatcher.dispatch(service, tokenKey, message, request);
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

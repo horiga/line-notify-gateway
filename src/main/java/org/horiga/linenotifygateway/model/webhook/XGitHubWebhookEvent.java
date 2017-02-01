@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public class GithubWebhookEvent extends BasicWebhookEvent {
+public class XGitHubWebhookEvent extends BasicWebhookEvent {
 
     public interface GithubWebhookEventNames {
         String PULL_REQUEST = "";
@@ -12,7 +12,7 @@ public class GithubWebhookEvent extends BasicWebhookEvent {
 
     private static Map<String, Object> empty = Maps.newHashMap();
 
-    public GithubWebhookEvent(String name, Map<String, Object> message) {
+    public XGitHubWebhookEvent(String name, Map<String, Object> message) {
         super(name, message);
     }
 }

@@ -14,7 +14,7 @@ public class BasicWebhookHandler extends WebhookHandler {
     }
 
     @Override
-    public void handleMessage(Map<String, Object> message, HttpServletRequest request) {
+    public void handleMessage(String tokenKey, Map<String, Object> message, HttpServletRequest request) {
         log.warn("handle unknown webhook payload. {}", message);
     }
 }

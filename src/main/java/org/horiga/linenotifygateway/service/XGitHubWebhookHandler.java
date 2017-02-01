@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.horiga.linenotifygateway.config.GithubLineNotifyGatewayProperties;
+import org.horiga.linenotifygateway.config.XGitHubLineNotifyGatewayProperties;
 import org.horiga.linenotifygateway.model.Notify;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 
@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GithubWebhookHandler extends WebhookHandler {
+public class XGitHubWebhookHandler extends WebhookHandler {
 
     private final NotifyService notifyService;
     private final List<String> eventTypes;
@@ -25,9 +25,9 @@ public class GithubWebhookHandler extends WebhookHandler {
     private final MustacheMessageBuilder messageBuilder;
     private final ObjectMapper mapper;
 
-    public GithubWebhookHandler(
+    public XGitHubWebhookHandler(
             NotifyService notifyService,
-            GithubLineNotifyGatewayProperties properties,
+            XGitHubLineNotifyGatewayProperties properties,
             MustacheMessageBuilder messageBuilder,
             ObjectMapper mapper) {
         super("github");
@@ -39,7 +39,9 @@ public class GithubWebhookHandler extends WebhookHandler {
     }
 
     @Override
-    public void handleMessage(Map<String, Object> message, HttpServletRequest request) throws Exception {
+    public void handleMessage(String tokenKey,
+                              Map<String, Object> message,
+                              HttpServletRequest request) throws Exception {
         final String event = request.getHeader("X-GitHub-Event");
         if (StringUtils.isBlank(event)
             || !hasNotifyEvent(event)) {

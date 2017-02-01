@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.horiga.linenotifygateway.service.BasicWebhookHandler;
-import org.horiga.linenotifygateway.service.GithubWebhookHandler;
+import org.horiga.linenotifygateway.service.XGitHubWebhookHandler;
 import org.horiga.linenotifygateway.service.NotifyService;
 import org.horiga.linenotifygateway.service.WebhookHandler;
 import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
@@ -30,11 +30,11 @@ public class LineNotifyGatewayConfig {
 
     private final LineNotifyGatewayProperties properties;
 
-    private final GithubLineNotifyGatewayProperties githubProperties;
+    private final XGitHubLineNotifyGatewayProperties githubProperties;
 
     @Autowired
     public LineNotifyGatewayConfig(LineNotifyGatewayProperties properties,
-                                   GithubLineNotifyGatewayProperties githubProperties) {
+                                   XGitHubLineNotifyGatewayProperties githubProperties) {
         this.properties = properties;
         this.githubProperties = githubProperties;
     }
@@ -71,13 +71,13 @@ public class LineNotifyGatewayConfig {
     }
 
     @Bean
-    GithubWebhookHandler githubWebhookHandler(NotifyService notifyService, ObjectMapper mapper) {
-        return new GithubWebhookHandler(notifyService, githubProperties, mustacheMessageBuilder(), mapper);
+    XGitHubWebhookHandler githubWebhookHandler(NotifyService notifyService, ObjectMapper mapper) {
+        return new XGitHubWebhookHandler(notifyService, githubProperties, mustacheMessageBuilder(), mapper);
     }
 
     @Bean
     WebhookServiceDispatcher webhookServiceDispatcher(
-            ObjectMapper mapper, GithubWebhookHandler githubWebhookHandler) {
+            ObjectMapper mapper, XGitHubWebhookHandler githubWebhookHandler) {
         WebhookHandler defaultWebhookHandler = new BasicWebhookHandler();
         final Map<String, WebhookHandler> webhookHandlers = Maps.newHashMap();
         webhookHandlers.put(githubWebhookHandler.getWebhookServiceName(), githubWebhookHandler);

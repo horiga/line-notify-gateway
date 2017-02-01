@@ -1,14 +1,11 @@
 package org.horiga.linenotifygateway.service;
 
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
@@ -30,35 +27,43 @@ public class WebhookServiceDispatcher {
         this.mapper = mapper;
         this.webhookHandlers = webhookHandlers;
         this.defaultWebhookHandler = defaultWebhookHandler;
-        webhookHandlers.entrySet().forEach(entry -> log.info("Registered Webhook => serviceName: {}, handler: {}", entry.getKey(), entry.getValue()));
+        webhookHandlers.entrySet()
+                       .forEach(entry -> log.info("Registered Webhook => serviceName: {}, handler: {}",
+                                                  entry.getKey(), entry.getValue()));
     }
 
-    public void dispatch(String service, Map<String, Object> message, HttpServletRequest request) {
+    public void dispatch(String service,
+                         String tokenKey,
+                         Map<String, Object> messageBody,
+                         HttpServletRequest request) {
         try {
-            printWebhookEvent(service, message, request);
-            webhookHandlers.getOrDefault(service, defaultWebhookHandler).handleMessage(message, request);
+            printWebhookEvent(service, tokenKey, messageBody, request);
+            webhookHandlers.getOrDefault(service,
+                                         defaultWebhookHandler).handleMessage(tokenKey, messageBody, request);
         } catch (Exception e) {
             log.error("handle webhook event message dispatcher error!", e);
         }
     }
 
-    private void printWebhookEvent(String service, Map<String, Object> message, HttpServletRequest request)
+    private void printWebhookEvent(String service, String tokenKey,
+                                   Map<String, Object> messageBody, HttpServletRequest request)
             throws Exception {
         final StringBuilder parameters = new StringBuilder();
         request.getParameterMap().entrySet()
                .forEach(entry -> parameters.append(entry.getKey())
                                            .append('=')
                                            .append(Joiner.on(", ").skipNulls().join(entry.getValue())));
-        final Enumeration<String> headerNames = request.getHeaderNames();
         final StringBuilder headers = new StringBuilder();
-        while (headerNames.hasMoreElements()) {
-            final String headerName = headerNames.nextElement();
-            headers.append(headerName).append(':').append(request.getHeader(headerName)).append(", ");
-        }
-        log.info("handle webhook events: service:{}, request.params:{}, request.headers:{} message:{}",
+        Collections.list(request.getHeaderNames())
+                   .forEach(header ->
+                                    headers.append(header)
+                                           .append(':')
+                                           .append(request.getHeader(header)).append(", "));
+        log.info("handle webhook events: service:{}/{}, request.params:{}, request.headers:{} message:{}",
                  service,
+                 tokenKey,
                  parameters,
                  headers,
-                 mapper.writeValueAsString(message));
+                 mapper.writeValueAsString(messageBody));
     }
 }
