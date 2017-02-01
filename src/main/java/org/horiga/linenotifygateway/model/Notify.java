@@ -13,6 +13,7 @@ import com.google.common.base.Splitter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@SuppressWarnings("unused")
 @NoArgsConstructor
 @Getter
 public class Notify {
@@ -24,18 +25,36 @@ public class Notify {
     private String stickerId;
     private String stickerPackageId;
 
+    private String tokenKey;
+    private String accessToken;
+
     public Notify(@NotNull String service, @NotNull String message,
-                  String thumbnailUri, String imageUri) {
+                  String thumbnailUri, String imageUri,
+                  String tokenKey, String accessToken) {
         this.service = service;
         this.message = message;
         this.thumbnailUri = thumbnailUri;
         this.imageUri = imageUri;
+        this.tokenKey = tokenKey;
+        this.accessToken = accessToken;
+    }
+
+    public Notify(@NotNull String service, @NotNull String message,
+                  String thumbnailUri, String imageUri,
+                  String tokenKey, String accessToken, String sticker) {
+        this.service = service;
+        this.message = message;
+        this.thumbnailUri = thumbnailUri;
+        this.imageUri = imageUri;
+        this.tokenKey = tokenKey;
+        this.accessToken = accessToken;
+        sticker(sticker);
     }
 
     /**
      * @param sticker - 'stickerPackageId,stickerId' example: 123,1
      */
-    public Notify addSticker(String sticker) {
+    public Notify sticker(String sticker) {
         if (StringUtils.isNotBlank(sticker)) {
             List<String> items = Splitter.on(",").limit(2).splitToList(sticker);
             if (2 == items.size()) {
@@ -46,12 +65,24 @@ public class Notify {
         return this;
     }
 
-    public void setStickerId(String stickerId) {
-        this.stickerId = stickerId;
+    public Notify tokenKey(String tokenKey) {
+        this.tokenKey = tokenKey;
+        return this;
     }
 
-    public void setStickerPackageId(String stickerPackageId) {
+    public Notify accessToken(String accessToken) {
+        this.accessToken = accessToken;
+        return this;
+    }
+
+    public Notify stickerId(String stickerId) {
+        this.stickerId = stickerId;
+        return this;
+    }
+
+    public Notify stickerPackageId(String stickerPackageId) {
         this.stickerPackageId = stickerPackageId;
+        return this;
     }
 
 }

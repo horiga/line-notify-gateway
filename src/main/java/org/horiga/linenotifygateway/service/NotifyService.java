@@ -1,13 +1,16 @@
 package org.horiga.linenotifygateway.service;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.horiga.linenotifygateway.config.LineNotifyGatewayProperties;
 import org.horiga.linenotifygateway.controller.NotifyController.ResponseMessage;
+import org.horiga.linenotifygateway.entity.TokenEntity;
 import org.horiga.linenotifygateway.model.Notify;
+import org.horiga.linenotifygateway.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.metrics.GaugeService;
@@ -21,7 +24,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,39 +43,49 @@ public class NotifyService {
 
     private final GaugeService gaugeService;
 
+    private final TokenRepository tokenRepository;
+
     @Autowired
     public NotifyService(
             @Qualifier("lineNotifyRestTemplate") RestTemplate restTemplate,
             LineNotifyGatewayProperties properties,
-            GaugeService gaugeService) {
+            GaugeService gaugeService, TokenRepository tokenRepository) {
         this.restTemplate = restTemplate;
         endpointURI = properties.getEndpointUri();
         accessToken = properties.getPersonalAccessToken();
         this.gaugeService = gaugeService;
+        this.tokenRepository = tokenRepository;
     }
 
-    public void execute(Notify notify) {
-        sendNotify(notify, accessToken);
+    public void send(Notify notify) {
+        execute(notify, accessToken(notify));
     }
 
-    public void execute(Notify notify, List<String> accessTokens) {
-        accessTokens.parallelStream().forEach(token -> sendNotify(notify, token));
+    private void execute(Notify notify, List<String> accessTokens) {
+        // TODO: Asynchronous
+        accessTokens.forEach(accessToken -> {
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+                markAsRateLimit(restTemplate.exchange(
+                        new URI(endpointURI),
+                        HttpMethod.POST,
+                        new HttpEntity<>(valueMap(notify), headers),
+                        ResponseMessage.class));
+            } catch (Exception ignore) {
+                log.error("Failed to LINE Notify API execution: {}", valueMap(notify));
+            }
+        });
     }
 
-    private void sendNotify(Notify notify, String accessToken) {
-        try {
-            // TODO async
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-            markAsRateLimit(restTemplate.exchange(
-                    new URI(endpointURI),
-                    HttpMethod.POST,
-                    new HttpEntity<>(valueMap(notify), headers),
-                    ResponseMessage.class));
-        } catch (Exception ignore) {
-            log.error("Failed to LINE Notify API execution: {}", valueMap(notify));
+    private List<String> accessToken(Notify notify) {
+        if(StringUtils.isNotBlank(notify.getAccessToken())) {
+            return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(notify.getAccessToken());
         }
+        List<String> tokens = Lists.newLinkedList();
+        final String searchKey = StringUtils.isNotBlank(notify.getTokenKey()) ? notify.getTokenKey() : notify.getService();
+        return tokenRepository.getAccessTokenList(searchKey);
     }
 
     private void markAsRateLimit(ResponseEntity<ResponseMessage> response) {
@@ -83,8 +98,10 @@ public class NotifyService {
         ImmutableSet<String> rateLimitKeys = ImmutableSet.of("Limit", "Remaining", "ImageLimit",
                                                              "ImageRemaining");
         rateLimitKeys.forEach(key -> gaugeService.submit("LINENotify.RateLimits." + key,
-                                                     Double.parseDouble((String) rateLimits
-                                    .getOrDefault(("X-RateLimit-" + key).toLowerCase(), "0"))));
+                                                         Double.parseDouble((String) rateLimits
+                                                                 .getOrDefault(
+                                                                         ("X-RateLimit-" + key).toLowerCase(),
+                                                                         "0"))));
     }
 
     public MultiValueMap<String, String> valueMap(Notify notify) {

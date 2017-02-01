@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.horiga.linenotifygateway.service.BasicWebhookHandler;
-import org.horiga.linenotifygateway.service.XGitHubWebhookHandler;
+import org.horiga.linenotifygateway.service.GitHubWebhookHandler;
 import org.horiga.linenotifygateway.service.NotifyService;
 import org.horiga.linenotifygateway.service.WebhookHandler;
-import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -30,11 +29,11 @@ public class LineNotifyGatewayConfig {
 
     private final LineNotifyGatewayProperties properties;
 
-    private final XGitHubLineNotifyGatewayProperties githubProperties;
+    private final GitHubLineNotifyGatewayProperties githubProperties;
 
     @Autowired
     public LineNotifyGatewayConfig(LineNotifyGatewayProperties properties,
-                                   XGitHubLineNotifyGatewayProperties githubProperties) {
+                                   GitHubLineNotifyGatewayProperties githubProperties) {
         this.properties = properties;
         this.githubProperties = githubProperties;
     }
@@ -65,22 +64,15 @@ public class LineNotifyGatewayConfig {
                 .build();
     }
 
-    @Bean
-    MustacheMessageBuilder mustacheMessageBuilder() {
-        return new MustacheMessageBuilder(properties.getMustacheTemplatePath());
-    }
-
-    @Bean
-    XGitHubWebhookHandler githubWebhookHandler(NotifyService notifyService, ObjectMapper mapper) {
-        return new XGitHubWebhookHandler(notifyService, githubProperties, mustacheMessageBuilder(), mapper);
-    }
-
-    @Bean
-    WebhookServiceDispatcher webhookServiceDispatcher(
-            ObjectMapper mapper, XGitHubWebhookHandler githubWebhookHandler) {
-        WebhookHandler defaultWebhookHandler = new BasicWebhookHandler();
+    @Bean(name = "webhookHandlers")
+    Map<String, WebhookHandler> webhookHandlers(GitHubWebhookHandler githubWebhookHandler) {
         final Map<String, WebhookHandler> webhookHandlers = Maps.newHashMap();
         webhookHandlers.put(githubWebhookHandler.getWebhookServiceName(), githubWebhookHandler);
-        return new WebhookServiceDispatcher(mapper, webhookHandlers, defaultWebhookHandler);
+        return webhookHandlers;
+    }
+
+    @Bean("defaultWebhookHandler")
+    WebhookHandler defaultWebhookHandler() {
+        return new BasicWebhookHandler();
     }
 }

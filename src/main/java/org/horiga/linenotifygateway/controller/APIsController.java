@@ -13,6 +13,7 @@ import org.horiga.linenotifygateway.entity.ServiceEntity;
 import org.horiga.linenotifygateway.entity.TokenEntity;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
 import org.horiga.linenotifygateway.repository.TokenRepository;
+import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,11 +39,15 @@ public class APIsController {
 
     private final ServiceRepository serviceRepository;
 
+    private final WebhookServiceDispatcher webhookServiceDispatcher;
+
     @Autowired
     public APIsController(TokenRepository tokenRepository,
-                          ServiceRepository serviceRepository) {
+                          ServiceRepository serviceRepository,
+                          WebhookServiceDispatcher webhookServiceDispatcher) {
         this.tokenRepository = tokenRepository;
         this.serviceRepository = serviceRepository;
+        this.webhookServiceDispatcher = webhookServiceDispatcher;
     }
 
     public static class Forms {
@@ -85,6 +90,11 @@ public class APIsController {
     public static class AjaxResponse {
         boolean success = true;
         Object content;
+    }
+
+    @GetMapping("/dispatchers")
+    public ResponseEntity<AjaxResponse> getWebhookDispatcher() {
+        return responseEntity(webhookServiceDispatcher.getAvailableDispatcher());
     }
 
     @GetMapping("/service")

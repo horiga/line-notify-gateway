@@ -3,6 +3,10 @@ package org.horiga.linenotifygateway.support;
 import java.io.StringWriter;
 import java.nio.file.FileSystems;
 
+import org.horiga.linenotifygateway.config.LineNotifyGatewayProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -10,11 +14,14 @@ import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class MustacheMessageBuilder {
 
     private final MustacheFactory mustacheFactory;
 
-    public MustacheMessageBuilder(String templateRootPath) {
+    @Autowired
+    public MustacheMessageBuilder(LineNotifyGatewayProperties properties) {
+        final String templateRootPath = properties.getMustacheTemplatePath();
         mustacheFactory = templateRootPath.startsWith("/")
                           ? new DefaultMustacheFactory(
                 FileSystems.getDefault().getPath(templateRootPath).toFile())

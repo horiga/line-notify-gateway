@@ -10,7 +10,7 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "plugins.line-notify.github")
 @Data
 @Component
-public class XGitHubLineNotifyGatewayProperties {
+public class GitHubLineNotifyGatewayProperties {
 
     private List<String> eventTypes;
 

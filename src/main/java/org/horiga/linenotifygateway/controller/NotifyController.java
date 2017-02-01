@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -82,28 +81,35 @@ public class NotifyController {
             @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
             HttpServletRequest request
     ) throws Exception {
-        notifyService.execute(
-                new Notify(service, buildMessage(service, message, request), thumbnailUrl, imageUrl)
-                        .addSticker(sticker));
+        notifyService.send(new Notify(service,
+                                      defaultMessage(service, message, request),
+                                      thumbnailUrl,
+                                      imageUrl,
+                                      "",
+                                      "",
+                                      sticker));
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     @RequestMapping(
-            value = "/notify-with-token",
+            value = {"/notify-with-token", "/notify-direct"},
             method = { RequestMethod.GET, RequestMethod.POST })
     public ResponseEntity<ResponseMessage> handleEvents(
             @RequestParam("notify_service") String service,
             @RequestParam("message") String message,
-            @RequestParam("notify_token") String token,
+            @RequestParam("notify_token") String accessToken,
             @RequestParam(name = "thumbnail_url", required = false, defaultValue = "") String thumbnailUrl,
             @RequestParam(name = "image_url", required = false, defaultValue = "") String imageUrl,
             @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
             HttpServletRequest request
     ) throws Exception {
-        notifyService.execute(
-                new Notify(service, buildMessage(service, message, request), thumbnailUrl, imageUrl)
-                        .addSticker(sticker),
-                Splitter.on(",").omitEmptyStrings().trimResults().splitToList(token));
+        notifyService.send(new Notify(service,
+                                      defaultMessage(service, message, request),
+                                      thumbnailUrl,
+                                      imageUrl,
+                                      "",
+                                      accessToken,
+                                      sticker));
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -114,15 +120,15 @@ public class NotifyController {
     public ResponseEntity<ResponseMessage> handleWebhookEvents(
             @PathVariable("service") String service,
             @RequestParam(name="token_key", required = false, defaultValue = "") String tokenKey,
-            @RequestBody Map<String, Object> message,
+            @RequestBody Map<String, Object> payload,
             HttpServletRequest request
     ) {
-        webhookServiceDispatcher.dispatch(service, tokenKey, message, request);
+        webhookServiceDispatcher.dispatch(service, tokenKey, payload, request);
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
     @SuppressWarnings("unused")
-    private String buildMessage(String service, String message, HttpServletRequest request) {
+    private String defaultMessage(String service, String message, HttpServletRequest request) {
         final StringBuilder sb = new StringBuilder(message).append('\n');
         request.getParameterMap().entrySet()
                      .stream()
@@ -136,6 +142,4 @@ public class NotifyController {
         scopes.put("message", sb.toString());
         return messageBuilder.build("message.mustache", scopes);
     }
-
-
 }

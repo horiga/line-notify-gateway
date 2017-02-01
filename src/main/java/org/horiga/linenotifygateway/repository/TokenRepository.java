@@ -1,6 +1,6 @@
 package org.horiga.linenotifygateway.repository;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -17,7 +17,10 @@ public interface TokenRepository {
     TokenEntity findById(@Param("id") String id);
 
     @Select("SELECT * FROM token WHERE service = #{serviceId}")
-    Collection<TokenEntity> findByServiceId(@Param("serviceId") String id);
+    List<TokenEntity> findByServiceId(@Param("serviceId") String id);
+
+    @Select("SELECT token FROM token WHERE service = #{serviceId}")
+    List<String> getAccessTokenList(@Param("serviceId") String id);
 
     @Insert("INSERT INTO token(`id`, `service`, `token`, `description`, `owner`) "
             + "VALUES(#{id}, #{service}, #{token}, #{description}, #{owner})")
