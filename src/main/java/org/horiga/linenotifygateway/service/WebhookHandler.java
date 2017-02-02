@@ -16,7 +16,6 @@ public abstract class WebhookHandler {
     }
 
     public abstract void handleMessage(String tokenKey,
-                                       Map<String, Object> message,
+                                       Map<String, Object> payload,
                                        HttpServletRequest request) throws Exception;
-
 }

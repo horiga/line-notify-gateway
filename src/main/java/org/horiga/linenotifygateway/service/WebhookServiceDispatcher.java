@@ -1,16 +1,14 @@
 package org.horiga.linenotifygateway.service;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
-import org.horiga.linenotifygateway.entity.ServiceEntity;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
-import org.horiga.linenotifygateway.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -30,23 +28,17 @@ public class WebhookServiceDispatcher {
 
     private final Map<String, WebhookHandler> webhookHandlers;
 
-    private final WebhookHandler defaultWebhookHandler;
-
     private final ServiceRepository serviceRepository;
 
-    private final TokenRepository tokenRepository;
-
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     public WebhookServiceDispatcher(ObjectMapper mapper,
-                                    @Qualifier("webhookHandlers") Map<String, WebhookHandler> webhookHandlers,
-                                    @Qualifier("defaultWebhookHandler") WebhookHandler defaultWebhookHandler,
-                                    ServiceRepository serviceRepository,
-                                    TokenRepository tokenRepository) {
+                                    @NotNull @Qualifier("webhookHandlers")
+                                            Map<String, WebhookHandler> webhookHandlers,
+                                    @NotNull ServiceRepository serviceRepository) {
         this.mapper = mapper;
         this.webhookHandlers = webhookHandlers;
-        this.defaultWebhookHandler = defaultWebhookHandler;
         this.serviceRepository = serviceRepository;
-        this.tokenRepository = tokenRepository;
         webhookHandlers.entrySet()
                        .forEach(entry -> log.info("Registered Webhook => serviceName: {}, handler: {}",
                                                   entry.getKey(), entry.getValue()));
@@ -54,32 +46,37 @@ public class WebhookServiceDispatcher {
 
     public void dispatch(String service,
                          String tokenKey,
-                         Map<String, Object> messageBody,
+                         Map<String, Object> payload,
                          HttpServletRequest request) {
         try {
-            printWebhookEvent(service, tokenKey, messageBody, request);
+            printWebhookEvent(service, tokenKey, payload, request);
             if (Objects.isNull(serviceRepository.findById(service))) {
                 log.error("unsupported service, {}", service);
             }
-            webhookHandlers.getOrDefault(service,
-                                         defaultWebhookHandler).handleMessage(tokenKey, messageBody, request);
+            if (webhookHandlers.containsKey(service)) {
+                webhookHandlers.get(service).handleMessage(tokenKey, payload, request);
+            } else {
+                log.warn("unknown webhook message received. {}", service);
+            }
         } catch (Exception e) {
             log.error("handle webhook event message dispatcher error!", e);
         }
     }
 
     public Map<String, Object> getAvailableDispatcher() {
-        Collection<ServiceEntity> services = serviceRepository.findAll();
-        Map<String, Object> results = Maps.newTreeMap();
-        results.put("count", services.size());
         List<Map<String, Object>> items = Lists.newLinkedList();
-        services.forEach(s -> {
-            Map<String, Object> data = Maps.newTreeMap();
-            data.put("name", s.getService());
-            data.put("class", webhookHandlers.get(s.getService()).getClass().getCanonicalName());
-            data.put("description", s.getDescription());
-            data.put("accessToken", tokenRepository.findByServiceId(s.getService()));
+        serviceRepository.findAll()
+                         .forEach(s -> {
+            if (webhookHandlers.containsKey(s.getService())) {
+                Map<String, Object> data = Maps.newTreeMap();
+                data.put("name", s.getService());
+                data.put("class", webhookHandlers.get(s.getService()).getClass().getCanonicalName());
+                data.put("description", s.getDescription());
+                items.add(data);
+            }
         });
+        Map<String, Object> results = Maps.newTreeMap();
+        results.put("count", items.size());
         results.put("data", items);
         return results;
     }

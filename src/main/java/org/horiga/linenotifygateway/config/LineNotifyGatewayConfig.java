@@ -3,11 +3,8 @@ package org.horiga.linenotifygateway.config;
 import java.io.IOException;
 import java.util.Map;
 
-import org.horiga.linenotifygateway.service.BasicWebhookHandler;
 import org.horiga.linenotifygateway.service.GitHubWebhookHandler;
-import org.horiga.linenotifygateway.service.NotifyService;
 import org.horiga.linenotifygateway.service.WebhookHandler;
-import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +14,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 
@@ -29,13 +25,9 @@ public class LineNotifyGatewayConfig {
 
     private final LineNotifyGatewayProperties properties;
 
-    private final GitHubLineNotifyGatewayProperties githubProperties;
-
     @Autowired
-    public LineNotifyGatewayConfig(LineNotifyGatewayProperties properties,
-                                   GitHubLineNotifyGatewayProperties githubProperties) {
+    public LineNotifyGatewayConfig(LineNotifyGatewayProperties properties) {
         this.properties = properties;
-        this.githubProperties = githubProperties;
     }
 
     @Bean(name = "lineNotifyRestTemplate")
@@ -66,13 +58,9 @@ public class LineNotifyGatewayConfig {
 
     @Bean(name = "webhookHandlers")
     Map<String, WebhookHandler> webhookHandlers(GitHubWebhookHandler githubWebhookHandler) {
+        log.error("Bean: webhookHandlers creation.");
         final Map<String, WebhookHandler> webhookHandlers = Maps.newHashMap();
         webhookHandlers.put(githubWebhookHandler.getWebhookServiceName(), githubWebhookHandler);
         return webhookHandlers;
-    }
-
-    @Bean("defaultWebhookHandler")
-    WebhookHandler defaultWebhookHandler() {
-        return new BasicWebhookHandler();
     }
 }

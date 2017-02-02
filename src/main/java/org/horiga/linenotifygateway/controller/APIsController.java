@@ -1,6 +1,8 @@
 package org.horiga.linenotifygateway.controller;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -25,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.Maps;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,12 +39,15 @@ import lombok.NoArgsConstructor;
 @RestController
 public class APIsController {
 
+    private static final Object EMPTY = new Object();
+
     private final TokenRepository tokenRepository;
 
     private final ServiceRepository serviceRepository;
 
     private final WebhookServiceDispatcher webhookServiceDispatcher;
 
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     public APIsController(TokenRepository tokenRepository,
                           ServiceRepository serviceRepository,
@@ -97,6 +104,15 @@ public class APIsController {
         return responseEntity(webhookServiceDispatcher.getAvailableDispatcher());
     }
 
+    @GetMapping({"/", ""})
+    public ResponseEntity<AjaxResponse> getData() {
+        final Map<String, Object> content = Maps.newTreeMap();
+        content.put("service", serviceRepository.findAll());
+        content.put("token", tokenRepository.findAll().stream()
+                       .collect(Collectors.groupingBy(TokenEntity::getService)));
+        return responseEntity(content);
+    }
+
     @GetMapping("/service")
     public ResponseEntity<AjaxResponse> getServices() {
         return responseEntity(serviceRepository.findAll());
@@ -128,13 +144,13 @@ public class APIsController {
     @DeleteMapping("/token")
     public ResponseEntity<AjaxResponse> deleteToken(@RequestParam("id") String id) {
         tokenRepository.delete(id);
-        return responseEntity(null);
+        return responseEntity(EMPTY);
     }
 
     @DeleteMapping("/all-token")
     public ResponseEntity<AjaxResponse> deleteAllToken(@RequestParam("sid") String sid) {
         tokenRepository.deleteByServiceId(sid);
-        return responseEntity(null);
+        return responseEntity(EMPTY);
     }
 
     private static ResponseEntity<AjaxResponse> responseEntity(Object content) {

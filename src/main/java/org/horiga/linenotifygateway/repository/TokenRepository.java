@@ -13,6 +13,10 @@ import org.horiga.linenotifygateway.entity.TokenEntity;
 public interface TokenRepository {
 
     @SuppressWarnings("unused")
+    @Select("SELECT * FROM token")
+    List<TokenEntity> findAll();
+
+    @SuppressWarnings("unused")
     @Select("SELECT * FROM token WHERE id = #{id}")
     TokenEntity findById(@Param("id") String id);
 
