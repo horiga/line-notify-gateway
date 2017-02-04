@@ -16,7 +16,7 @@ plugins:
         - pull_request_review_comment
         - release
 server:
-  port: 18081
+  port: 8080
 
 management:
   port: 28081

@@ -36,5 +36,4 @@ public class MustacheMessageBuilder {
         log.debug("Compile mustache template message: [{}] \n {}", template, message);
         return message;
     }
-
 }

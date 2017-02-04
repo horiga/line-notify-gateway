@@ -1,4 +1,4 @@
-package org.horiga.linenotifygateway.controller;
+package org.horiga.linenotifygateway.controller.admin;
 
 import java.util.Map;
 import java.util.UUID;
@@ -9,8 +9,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import org.horiga.linenotifygateway.controller.APIsController.Forms.ServiceForm;
-import org.horiga.linenotifygateway.controller.APIsController.Forms.TokenForm;
+import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.ServiceForm;
+import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.TokenForm;
 import org.horiga.linenotifygateway.entity.ServiceEntity;
 import org.horiga.linenotifygateway.entity.TokenEntity;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
@@ -35,11 +35,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@RequestMapping("/management-api")
+@RequestMapping("/api")
 @RestController
 public class APIsController {
-
-    private static final Object EMPTY = new Object();
 
     private final TokenRepository tokenRepository;
 
@@ -72,7 +70,7 @@ public class APIsController {
             String token;
             @NotNull
             @Max(300)
-            String description;
+            String descr;
             @NotNull
             @Max(300)
             String owner;
@@ -86,9 +84,18 @@ public class APIsController {
             @Max(10)
             @Pattern(regexp="[0-9a-zA-Z]+")
             String sid;
+
+            @NotNull
+            @Max(10)
+            String type;
+
+            @NotNull
+            @Max(10)
+            String tgid;
+
             @NotNull
             @Max(300)
-            String description;
+            String descr;
         }
     }
 
@@ -121,7 +128,7 @@ public class APIsController {
     @PostMapping("/service")
     public ResponseEntity<AjaxResponse> addService(
             @Valid ServiceForm fm, BindingResult results) {
-        final ServiceEntity entity = new ServiceEntity(fm.sid, fm.description);
+        final ServiceEntity entity = new ServiceEntity(fm.sid, fm.type, fm.tgid, fm.descr);
         serviceRepository.insert(entity);
         return responseEntity(entity);
     }
@@ -136,7 +143,7 @@ public class APIsController {
     public ResponseEntity<AjaxResponse> addToken(
             @Valid TokenForm fm, BindingResult results) {
         final TokenEntity token = new TokenEntity(UUID.randomUUID().toString().replaceAll("-", ""),
-                                            fm.sid, fm.token, fm.description, fm.owner);
+                                            fm.sid, fm.token, fm.descr, fm.owner);
         tokenRepository.insert(token);
         return responseEntity(token);
     }
@@ -144,13 +151,13 @@ public class APIsController {
     @DeleteMapping("/token")
     public ResponseEntity<AjaxResponse> deleteToken(@RequestParam("id") String id) {
         tokenRepository.delete(id);
-        return responseEntity(EMPTY);
+        return responseEntity(null);
     }
 
     @DeleteMapping("/all-token")
     public ResponseEntity<AjaxResponse> deleteAllToken(@RequestParam("sid") String sid) {
         tokenRepository.deleteByServiceId(sid);
-        return responseEntity(EMPTY);
+        return responseEntity(null);
     }
 
     private static ResponseEntity<AjaxResponse> responseEntity(Object content) {
