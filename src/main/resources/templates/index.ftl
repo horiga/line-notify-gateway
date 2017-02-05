@@ -9,6 +9,10 @@
   <p><a class="btn btn-primary btn-lg" href="#" role="button">New Service</a></p>
 </div>
 
+<div id="" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog">
+
+</div>
+
 <script>
 </script>
 </@layout.default>

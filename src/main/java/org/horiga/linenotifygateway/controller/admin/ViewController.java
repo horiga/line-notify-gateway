@@ -1,5 +1,7 @@
 package org.horiga.linenotifygateway.controller.admin;
 
+import org.horiga.linenotifygateway.entity.ServiceEntity;
+import org.horiga.linenotifygateway.repository.MessageTemplateRepository;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
 import org.horiga.linenotifygateway.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +16,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ViewController {
 
     private final ServiceRepository serviceRepository;
+
     private final TokenRepository tokenRepository;
+
+    private final MessageTemplateRepository messageTemplateRepository;
 
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     public ViewController(ServiceRepository serviceRepository,
-                          TokenRepository tokenRepository) {
+                          TokenRepository tokenRepository, MessageTemplateRepository messageTemplateRepository) {
         this.serviceRepository = serviceRepository;
         this.tokenRepository = tokenRepository;
+        this.messageTemplateRepository = messageTemplateRepository;
     }
 
     @GetMapping({ "/", "/index" })
@@ -39,7 +45,11 @@ public class ViewController {
     public String serviceDetail(
             @PathVariable("sid") String serviceId,
             Model model) {
-        model.addAttribute("tokens", tokenRepository.findByServiceId(serviceId));
+        final ServiceEntity se = serviceRepository.findById(serviceId);
+        model.addAttribute("se", se);
+        model.addAttribute("to", tokenRepository.findByServiceId(serviceId));
+        model.addAttribute("me", messageTemplateRepository.findTemplateByGroup(
+                se.getMessageTemplateGroupId()));
         return "service-detail";
     }
 }
