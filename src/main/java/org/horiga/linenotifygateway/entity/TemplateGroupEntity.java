@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageTemplateGroup {
+public class TemplateGroupEntity {
     private String groupId;
     private String displayName;
     private String description;

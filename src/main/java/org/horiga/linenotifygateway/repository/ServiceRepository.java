@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.horiga.linenotifygateway.entity.ServiceEntity;
 
+@SuppressWarnings("unused")
 @Mapper
 public interface ServiceRepository {
 
@@ -19,8 +20,12 @@ public interface ServiceRepository {
     @Select("SELECT * FROM service")
     Collection<ServiceEntity> findAll();
 
-    @Insert("INSERT INTO service(`service`, `type` `messageTemplateGroupId`, `description`) "
-            + "VALUES (#{service}, #{type}, #{messageTemplateGroupId}, #{description})")
+    @Insert("INSERT INTO service("
+            + "`service`, `display_name`, `type` `template_group_id`, "
+            + "`template_mapping_type`, `template_mapping_value`, `description`) "
+            + " VALUES ("
+            + "#{service}, #{displayName}, #{type}, #{templateGroupId}, "
+            + "#{templateMappingType}, #{templateMappingValue}, #{description})")
     void insert(ServiceEntity entity);
 
     @Delete("DELETE FROM service WHERE service = #{service}")

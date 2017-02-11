@@ -1,7 +1,6 @@
 package org.horiga.linenotifygateway.controller.admin;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -15,6 +14,7 @@ import org.horiga.linenotifygateway.entity.ServiceEntity;
 import org.horiga.linenotifygateway.entity.TokenEntity;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
 import org.horiga.linenotifygateway.repository.TokenRepository;
+import org.horiga.linenotifygateway.service.ManagementService;
 import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,6 +39,8 @@ import lombok.NoArgsConstructor;
 @RestController
 public class APIsController {
 
+    private final ManagementService managementService;
+
     private final TokenRepository tokenRepository;
 
     private final ServiceRepository serviceRepository;
@@ -47,9 +49,10 @@ public class APIsController {
 
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
-    public APIsController(TokenRepository tokenRepository,
+    public APIsController(ManagementService managementService, TokenRepository tokenRepository,
                           ServiceRepository serviceRepository,
                           WebhookServiceDispatcher webhookServiceDispatcher) {
+        this.managementService = managementService;
         this.tokenRepository = tokenRepository;
         this.serviceRepository = serviceRepository;
         this.webhookServiceDispatcher = webhookServiceDispatcher;
@@ -62,15 +65,15 @@ public class APIsController {
         public static class TokenForm {
             @NotNull
             @Max(10)
-            @Pattern(regexp="[0-9a-zA-Z]+")
+            @Pattern(regexp = "[0-9a-zA-Z]+")
             String sid;
             @NotNull
             @Max(33)
-            @Pattern(regexp="[0-9a-zA-Z]+")
+            @Pattern(regexp = "[0-9a-zA-Z]+")
             String token;
             @NotNull
             @Max(300)
-            String descr;
+            String description;
             @NotNull
             @Max(300)
             String owner;
@@ -82,20 +85,32 @@ public class APIsController {
         public static class ServiceForm {
             @NotNull
             @Max(10)
-            @Pattern(regexp="[0-9a-zA-Z]+")
+            @Pattern(regexp = "[0-9a-zA-Z]+")
             String sid;
 
             @NotNull
-            @Max(10)
-            String type;
+            @Max(100)
+            String dn;
 
             @NotNull
             @Max(10)
-            String tgid;
+            String type; // 'direct', 'payload'
+
+            @NotNull
+            @Max(10)
+            String tg_id;
+
+            @NotNull
+            @Max(30)
+            String tm_type; // http.header, http.parameter
+
+            @NotNull
+            @Max(30)
+            String tm_value; // `x-github-event`
 
             @NotNull
             @Max(300)
-            String descr;
+            String description;
         }
     }
 
@@ -111,12 +126,12 @@ public class APIsController {
         return responseEntity(webhookServiceDispatcher.getAvailableDispatcher());
     }
 
-    @GetMapping({"/", ""})
+    @GetMapping({ "/", "" })
     public ResponseEntity<AjaxResponse> getData() {
         final Map<String, Object> content = Maps.newTreeMap();
         content.put("service", serviceRepository.findAll());
         content.put("token", tokenRepository.findAll().stream()
-                       .collect(Collectors.groupingBy(TokenEntity::getService)));
+                                            .collect(Collectors.groupingBy(TokenEntity::getService)));
         return responseEntity(content);
     }
 
@@ -126,9 +141,13 @@ public class APIsController {
     }
 
     @PostMapping("/service")
-    public ResponseEntity<AjaxResponse> addService(
-            @Valid ServiceForm fm, BindingResult results) {
-        final ServiceEntity entity = new ServiceEntity(fm.sid, fm.type, fm.tgid, fm.descr);
+    public ResponseEntity<AjaxResponse> newService(
+            @RequestParam(name="from", required = false, defaultValue = "") String from, // 'github' or 'alert'
+            @Valid ServiceForm form,
+            BindingResult results) {
+        final ServiceEntity entity =
+                new ServiceEntity(form.sid, form.dn, form.type, form.tg_id, form.tm_type, form.tm_value,
+                                  form.description);
         serviceRepository.insert(entity);
         return responseEntity(entity);
     }
@@ -140,23 +159,22 @@ public class APIsController {
 
     @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
     @PostMapping("/token")
-    public ResponseEntity<AjaxResponse> addToken(
-            @Valid TokenForm fm, BindingResult results) {
-        final TokenEntity token = new TokenEntity(UUID.randomUUID().toString().replaceAll("-", ""),
-                                            fm.sid, fm.token, fm.descr, fm.owner);
-        tokenRepository.insert(token);
-        return responseEntity(token);
+    public ResponseEntity<AjaxResponse> activateToken(
+            @Valid TokenForm form, BindingResult results) {
+        return responseEntity(
+                managementService.activateToken(form.sid, form.token, form.description, form.owner));
     }
 
     @DeleteMapping("/token")
-    public ResponseEntity<AjaxResponse> deleteToken(@RequestParam("id") String id) {
-        tokenRepository.delete(id);
+    public ResponseEntity<AjaxResponse> invalidateToken(
+            @RequestParam("sid") String sid, @RequestParam("id") String id) {
+        managementService.invalidateToken(sid, id);
         return responseEntity(null);
     }
 
     @DeleteMapping("/all-token")
-    public ResponseEntity<AjaxResponse> deleteAllToken(@RequestParam("sid") String sid) {
-        tokenRepository.deleteByServiceId(sid);
+    public ResponseEntity<AjaxResponse> invalidateToken(@RequestParam("sid") String sid) {
+        managementService.invalidateAllToken(sid);
         return responseEntity(null);
     }
 

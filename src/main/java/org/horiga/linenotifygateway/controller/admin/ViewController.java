@@ -1,9 +1,10 @@
 package org.horiga.linenotifygateway.controller.admin;
 
-import org.horiga.linenotifygateway.entity.ServiceEntity;
-import org.horiga.linenotifygateway.repository.MessageTemplateRepository;
+import org.horiga.linenotifygateway.repository.TemplateRepository;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
 import org.horiga.linenotifygateway.repository.TokenRepository;
+import org.horiga.linenotifygateway.service.ManagementService;
+import org.horiga.linenotifygateway.service.ManagementService.ServiceDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,20 +12,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequestMapping("/admin")
+@RequestMapping("/console")
 @Controller
 public class ViewController {
+
+    private final ManagementService managementService;
 
     private final ServiceRepository serviceRepository;
 
     private final TokenRepository tokenRepository;
 
-    private final MessageTemplateRepository messageTemplateRepository;
+    private final TemplateRepository messageTemplateRepository;
 
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
-    public ViewController(ServiceRepository serviceRepository,
-                          TokenRepository tokenRepository, MessageTemplateRepository messageTemplateRepository) {
+    public ViewController(ManagementService managementService, ServiceRepository serviceRepository,
+                          TokenRepository tokenRepository, TemplateRepository messageTemplateRepository) {
+        this.managementService = managementService;
         this.serviceRepository = serviceRepository;
         this.tokenRepository = tokenRepository;
         this.messageTemplateRepository = messageTemplateRepository;
@@ -43,13 +47,12 @@ public class ViewController {
 
     @GetMapping("/service/{sid}")
     public String serviceDetail(
-            @PathVariable("sid") String serviceId,
+            @PathVariable("sid") String sid,
             Model model) {
-        final ServiceEntity se = serviceRepository.findById(serviceId);
-        model.addAttribute("se", se);
-        model.addAttribute("to", tokenRepository.findByServiceId(serviceId));
-        model.addAttribute("me", messageTemplateRepository.findTemplateByGroup(
-                se.getMessageTemplateGroupId()));
+        ServiceDetail serviceDetails = managementService.getServiceDetails(sid);
+        model.addAttribute("se", serviceDetails.getService());
+        model.addAttribute("tokens", serviceDetails.getTokens());
+        model.addAttribute("templates", serviceDetails.getTemplates());
         return "service-detail";
     }
 }

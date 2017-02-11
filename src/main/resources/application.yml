@@ -41,4 +41,5 @@ spring:
 mybatis:
   configuration:
     cache-enabled: false
+    map-underscore-to-camel-case: true
 

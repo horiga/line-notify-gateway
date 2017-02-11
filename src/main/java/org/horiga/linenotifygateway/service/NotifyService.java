@@ -1,14 +1,12 @@
 package org.horiga.linenotifygateway.service;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.horiga.linenotifygateway.config.LineNotifyGatewayProperties;
 import org.horiga.linenotifygateway.controller.NotifyController.ResponseMessage;
-import org.horiga.linenotifygateway.entity.TokenEntity;
 import org.horiga.linenotifygateway.model.Notify;
 import org.horiga.linenotifygateway.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;

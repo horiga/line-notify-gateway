@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ServiceEntity {
     private String service;
+    private String displayName;
     private String type;
-    private String messageTemplateGroupId;
+    private String templateGroupId;
+    private String templateMappingType;
+    private String templateMappingValue;
     private String description;
 }

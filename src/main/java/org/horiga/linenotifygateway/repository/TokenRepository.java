@@ -30,10 +30,10 @@ public interface TokenRepository {
             + "VALUES(#{id}, #{service}, #{token}, #{description}, #{owner})")
     void insert(TokenEntity entity);
 
-    @Delete("DELETE FROM token WHERE id = #{id}")
-    void delete(@Param("id") String id);
+    @Delete("DELETE FROM token WHERE id = #{id} AND service = #{sid}")
+    void delete(@Param("id") String id, @Param("sid") String sid);
 
-    @Delete("DELETE FROM token WHERE service = #{serviceId}")
-    void deleteByServiceId(@Param("serviceId") String serviceId);
+    @Delete("DELETE FROM token WHERE service = #{sid}")
+    void deleteWithServiceId(@Param("sid") String sid);
 
 }

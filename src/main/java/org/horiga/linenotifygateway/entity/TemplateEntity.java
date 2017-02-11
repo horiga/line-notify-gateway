@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageTemplate {
+public class TemplateEntity {
     private String id;
     private String groupId;
-    private String displayName;
+    private String mappingValue;
     private String description;
-    private String eventKey;
-    private String template;
+    private String content;
 }
