@@ -34,7 +34,7 @@ public interface ServiceRepository {
     @Update("UPDATE service "
             + "SET "
             + "`type` = #{type}, "
-            + "`messageTemplateGroupId` = #{messageTemplateGroupId}, "
+            + "`template_group_id` = #{templateGroupId}, "
             + "`description` = #{description} "
             + "WHERE service = #{service}")
     void update(ServiceEntity entity);
