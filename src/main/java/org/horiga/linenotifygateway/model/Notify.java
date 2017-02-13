@@ -9,6 +9,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,16 +27,14 @@ public class Notify {
     private String stickerPackageId;
 
     private String tokenKey;
-    private String accessToken;
+    private List<String> accessToken;
 
     public Notify(@NotNull String service, @NotNull String message,
-                  String thumbnailUri, String imageUri,
-                  String tokenKey, String accessToken) {
+                  String thumbnailUri, String imageUri, List<String> accessToken) {
         this.service = service;
         this.message = message;
         this.thumbnailUri = thumbnailUri;
         this.imageUri = imageUri;
-        this.tokenKey = tokenKey;
         this.accessToken = accessToken;
     }
 
@@ -47,7 +46,6 @@ public class Notify {
         this.thumbnailUri = thumbnailUri;
         this.imageUri = imageUri;
         this.tokenKey = tokenKey;
-        this.accessToken = accessToken;
         sticker(sticker);
     }
 
@@ -65,12 +63,15 @@ public class Notify {
         return this;
     }
 
-    public Notify tokenKey(String tokenKey) {
-        this.tokenKey = tokenKey;
+    public Notify accessToken(String accessToken) {
+        if (this.accessToken == null) {
+            this.accessToken = Lists.newArrayList();
+        }
+        this.accessToken.add(accessToken);
         return this;
     }
 
-    public Notify accessToken(String accessToken) {
+    public Notify accessToken(List<String> accessToken) {
         this.accessToken = accessToken;
         return this;
     }
@@ -84,5 +85,4 @@ public class Notify {
         this.stickerPackageId = stickerPackageId;
         return this;
     }
-
 }

@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.horiga.linenotifygateway.controller.NotifyController.ResponseMessage;
-import org.horiga.linenotifygateway.service.MessageDispatcherService;
+import org.horiga.linenotifygateway.service.MessageDispatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotifyGatewayController {
 
-    private final MessageDispatcherService dispatcherService;
+    private final MessageDispatcher dispatcher;
 
-    public NotifyGatewayController(MessageDispatcherService dispatcherService) {
-        this.dispatcherService = dispatcherService;
+    public NotifyGatewayController(MessageDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
     }
 
     @RequestMapping(
@@ -40,7 +40,7 @@ public class NotifyGatewayController {
             @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
             HttpServletRequest servletRequest
     ) {
-        dispatcherService.handleMessage(null);
+        dispatcher.handleMessage(null);
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -53,7 +53,7 @@ public class NotifyGatewayController {
             @RequestBody Map<String, Object> payload,
             HttpServletRequest servletRequest
     ) {
-        dispatcherService.handleMessage(null);
+        dispatcher.handleMessage(null);
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

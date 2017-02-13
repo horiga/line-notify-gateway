@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class GitHubWebhookHandler extends WebhookHandler {
 
-    private final NotifyService notifyService;
+    private final LINENotifyClient notifyService;
     private final List<String> eventTypes;
     private final MustacheMessageBuilder messageBuilder;
     private final ObjectMapper mapper;
@@ -77,7 +77,7 @@ public class GitHubWebhookHandler extends WebhookHandler {
 
     @Autowired
     public GitHubWebhookHandler(
-            NotifyService notifyService,
+            LINENotifyClient notifyService,
             GitHubLineNotifyGatewayProperties properties,
             MustacheMessageBuilder messageBuilder,
             ObjectMapper mapper) {

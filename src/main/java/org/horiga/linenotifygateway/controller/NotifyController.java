@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.horiga.linenotifygateway.model.Notify;
-import org.horiga.linenotifygateway.service.NotifyService;
+import org.horiga.linenotifygateway.service.LINENotifyClient;
 import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @RestController
 @RequestMapping("/v1")
 @Slf4j
@@ -40,7 +41,7 @@ public class NotifyController {
             Sets.newHashSet("notify_service", "message", "notify_token", "thumbnail_url", "image_url",
                             "sticker"));
 
-    private final NotifyService notifyService;
+    private final LINENotifyClient notifyService;
 
     private final WebhookServiceDispatcher webhookServiceDispatcher;
 
@@ -62,7 +63,7 @@ public class NotifyController {
 
     @Autowired
     public NotifyController(
-            NotifyService notifyService,
+            LINENotifyClient notifyService,
             WebhookServiceDispatcher webhookServiceDispatcher,
             MustacheMessageBuilder messageBuilder) {
         this.notifyService = notifyService;
