@@ -40,7 +40,6 @@ public class NotifyGatewayController {
             @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
             HttpServletRequest servletRequest
     ) {
-        dispatcher.handleMessage(null);
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -53,7 +52,6 @@ public class NotifyGatewayController {
             @RequestBody Map<String, Object> payload,
             HttpServletRequest servletRequest
     ) {
-        dispatcher.handleMessage(null);
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 }

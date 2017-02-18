@@ -162,7 +162,7 @@ public class MessageDispatcher {
                 templateMappingValue = message.getParameter(serviceEntity.getTemplateMappingValue(), "");
             }
         }
-        log.info("Search message template, sid:{}, group_id:{}, mapping_value:{}", serviceEntity.getService(),
+        log.info("Search message template, sid:{}, group_id:{}, mapping_value:{}", serviceEntity.getServiceId(),
                  serviceEntity.getTemplateGroupId(), templateMappingValue);
         return Optional.ofNullable(templateRepository.getTemplate(serviceEntity.getTemplateGroupId(),
                                                                   templateMappingValue));

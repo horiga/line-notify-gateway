@@ -67,10 +67,10 @@ public class WebhookServiceDispatcher {
         List<Map<String, Object>> items = Lists.newLinkedList();
         serviceRepository.findAll()
                          .forEach(s -> {
-            if (webhookHandlers.containsKey(s.getService())) {
+            if (webhookHandlers.containsKey(s.getServiceId())) {
                 Map<String, Object> data = Maps.newTreeMap();
-                data.put("name", s.getService());
-                data.put("class", webhookHandlers.get(s.getService()).getClass().getCanonicalName());
+                data.put("name", s.getServiceId());
+                data.put("class", webhookHandlers.get(s.getServiceId()).getClass().getCanonicalName());
                 data.put("description", s.getDescription());
                 items.add(data);
             }

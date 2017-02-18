@@ -1,41 +1,54 @@
 <#macro default>
 <!DOCTYPE><html>
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Notify Center</title>
-<!--/css-->
-<link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/parsley.css">
-<link rel="stylesheet" href="/css/style.css">
-<!--/js-->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="/js/parsley.min.js"></script>
-</head><body>
-<nav class="navbar navbar-default navbar-static-top">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="/">LINE Notify Gateway</a>
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-        <li><a href="/admin/service">Service</a></li>
-        <li><a href="/">History</a></li>
-      </ul>
-    </div><!--/.nav-collapse -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notify Center</title>
+  <!--Import Google Icon Font-->
+  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!--Import materialize.css-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+  <link rel="stylesheet" href="/css/parsley.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+  <script type="text/javascript" src="/js/parsley.min.js"></script>
+  <!--Let browser know website is optimized for mobile-->
+  <title>Notify Gateway</title>
+</head>
+<body>
+<header>
+<!-- Navigation bar -->
+<nav class="darken-3">
+  <div class="container nav-header nav-fixed lighten-5">
+    <a href="/" class="brand-logo">Notify</a>
+    <ul id="nav-mobile" class="right hide-on-med-and-down">
+      <li><a href="/console/service">Service</a></li>
+      <li><a href="/console/template">Template</a></li>
+      <li><a href="http://" target="_blank">History</a></li>
+    </ul>
   </div>
 </nav>
-<div class="container">
-<div class="main-page">
+</header><!-- // nav-container -->
+<main>
+  <div class="container">
+<!-- //main-page -->
 <#nested />
-</div><!-- main-page -->
-</div><!-- container --></body></html>
+  </div>
+</main>
+
+<!-- Footer -->
+<#--<footer class="page-footer">-->
+  <#--<div class="footer-copyright">-->
+    <#--<div class="container">-->
+      <#--© 2017 Copyright h.horiga-->
+      <#--<a class="grey-text text-lighten-4 right" href="https://github.com/horiga/line-notify-gateway">github</a>-->
+    <#--</div>-->
+  <#--</div>-->
+<#--</footer>-->
+<!-- //page-footer -->
+
+</body></html>
 </#macro>

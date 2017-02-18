@@ -131,7 +131,7 @@ public class APIsController {
         final Map<String, Object> content = Maps.newTreeMap();
         content.put("service", serviceRepository.findAll());
         content.put("token", tokenRepository.findAll().stream()
-                                            .collect(Collectors.groupingBy(TokenEntity::getService)));
+                                            .collect(Collectors.groupingBy(TokenEntity::getServiceId)));
         return responseEntity(content);
     }
 
@@ -182,4 +182,6 @@ public class APIsController {
         return new ResponseEntity<>(AjaxResponse.builder().success(true).content(content).build(),
                                     HttpStatus.OK);
     }
+
+
 }

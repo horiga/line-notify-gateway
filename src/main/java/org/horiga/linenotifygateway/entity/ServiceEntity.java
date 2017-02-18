@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceEntity {
-    private String service;
+    private String serviceId;
     private String displayName;
     private String type;
     private String templateGroupId;

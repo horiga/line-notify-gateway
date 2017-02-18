@@ -20,20 +20,20 @@ public interface TokenRepository {
     @Select("SELECT * FROM token WHERE id = #{id}")
     TokenEntity findById(@Param("id") String id);
 
-    @Select("SELECT * FROM token WHERE service = #{serviceId}")
+    @Select("SELECT * FROM token WHERE service_id = #{serviceId}")
     List<TokenEntity> findByServiceId(@Param("serviceId") String id);
 
-    @Select("SELECT token FROM token WHERE service = #{serviceId}")
+    @Select("SELECT token FROM token WHERE service_id = #{serviceId}")
     List<String> getAccessTokenList(@Param("serviceId") String id);
 
-    @Insert("INSERT INTO token(`id`, `service`, `token`, `description`, `owner`) "
+    @Insert("INSERT INTO token(`id`, `service_id`, `token`, `description`, `owner`) "
             + "VALUES(#{id}, #{service}, #{token}, #{description}, #{owner})")
     void insert(TokenEntity entity);
 
-    @Delete("DELETE FROM token WHERE id = #{id} AND service = #{sid}")
-    void delete(@Param("id") String id, @Param("sid") String sid);
+    @Delete("DELETE FROM token WHERE id = #{id} AND service_id = #{serviceId}")
+    void delete(@Param("id") String id, @Param("serviceId") String serviceId);
 
-    @Delete("DELETE FROM token WHERE service = #{sid}")
-    void deleteWithServiceId(@Param("sid") String sid);
+    @Delete("DELETE FROM token WHERE service_id = #{serviceId}")
+    void deleteWithServiceId(@Param("serviceId") String serviceId);
 
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TokenEntity {
     private String id;
-    private String service;
+    private String serviceId;
     private String token;
     private String description;
     private String owner;

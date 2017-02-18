@@ -38,12 +38,9 @@ public interface TemplateRepository {
 
     @Update("UPDATE template "
             + "SET "
-            + " `content` = #{content},"
-            + " `description` = #{description}, "
-            + " `content` = #{content} "
+            + " `content` = #{content}"
             + " WHERE `id` = #{id}")
     void updateTemplate(@Param("id") String id,
-                        @Param("description") String description,
                         @Param("content") String content);
 
     @Update("UPDATE template_group "

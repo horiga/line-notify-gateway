@@ -1,6 +1,5 @@
 <#import "spring.ftl" as spring/>
 <#import 'layout/default.ftl' as layout>
-
 <@layout.default>
 
 <div class="page-header">

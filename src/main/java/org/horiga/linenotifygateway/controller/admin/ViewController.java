@@ -1,8 +1,5 @@
 package org.horiga.linenotifygateway.controller.admin;
 
-import org.horiga.linenotifygateway.repository.TemplateRepository;
-import org.horiga.linenotifygateway.repository.ServiceRepository;
-import org.horiga.linenotifygateway.repository.TokenRepository;
 import org.horiga.linenotifygateway.service.ManagementService;
 import org.horiga.linenotifygateway.service.ManagementService.ServiceDetail;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +15,10 @@ public class ViewController {
 
     private final ManagementService managementService;
 
-    private final ServiceRepository serviceRepository;
-
-    private final TokenRepository tokenRepository;
-
-    private final TemplateRepository messageTemplateRepository;
-
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
-    public ViewController(ManagementService managementService, ServiceRepository serviceRepository,
-                          TokenRepository tokenRepository, TemplateRepository messageTemplateRepository) {
+    public ViewController(ManagementService managementService) {
         this.managementService = managementService;
-        this.serviceRepository = serviceRepository;
-        this.tokenRepository = tokenRepository;
-        this.messageTemplateRepository = messageTemplateRepository;
     }
 
     @GetMapping({ "/", "/index" })
@@ -40,19 +27,30 @@ public class ViewController {
     }
 
     @GetMapping("/service")
-    public String service(Model model) {
-        model.addAttribute("services", serviceRepository.findAll());
+    public String service(Model m) {
+        m.addAttribute("services", managementService.getServices());
         return "service";
     }
 
     @GetMapping("/service/{sid}")
-    public String serviceDetail(
+    public String serviceDetails(
             @PathVariable("sid") String sid,
-            Model model) {
+            Model m) {
         ServiceDetail serviceDetails = managementService.getServiceDetails(sid);
-        model.addAttribute("se", serviceDetails.getService());
-        model.addAttribute("tokens", serviceDetails.getTokens());
-        model.addAttribute("templates", serviceDetails.getTemplates());
+        m.addAttribute("se", serviceDetails.getService());
+        m.addAttribute("tokens", serviceDetails.getTokens());
+        m.addAttribute("templates", serviceDetails.getTemplates());
         return "service-detail";
+    }
+
+    @GetMapping("/template")
+    public String template(Model m) {
+        return "template";
+    }
+
+    @GetMapping("/template/{template_group_identifier}")
+    public String templateDetails(
+            @PathVariable("template_group_identifier") String templateGroupIdentifier, Model m) {
+        return "template";
     }
 }

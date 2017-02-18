@@ -33,7 +33,7 @@ spring:
   datasource:
     hikari:
       driver-class-name: org.h2.jdbcx.JdbcDataSource
-      jdbc-url: jdbc:h2:file:/tmp/lng.h2db;MODE=MYSQL;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS "public"
+      jdbc-url: jdbc:h2:file:~/.line-notify-gateway/h2/lng.h2db;MODE=MYSQL;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS "public"
       username: sa
       password:
       connection-timeout: 3000
