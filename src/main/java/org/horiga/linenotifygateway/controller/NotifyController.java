@@ -6,8 +6,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.horiga.linenotifygateway.model.Notify;
-import org.horiga.linenotifygateway.service.LINENotifyClient;
+import org.horiga.linenotifygateway.model.NotifyMessage;
+import org.horiga.linenotifygateway.service.NotifyMessageClient;
 import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class NotifyController {
             Sets.newHashSet("notify_service", "message", "notify_token", "thumbnail_url", "image_url",
                             "sticker"));
 
-    private final LINENotifyClient notifyService;
+    private final NotifyMessageClient notifyService;
 
     private final WebhookServiceDispatcher webhookServiceDispatcher;
 
@@ -63,7 +63,7 @@ public class NotifyController {
 
     @Autowired
     public NotifyController(
-            LINENotifyClient notifyService,
+            NotifyMessageClient notifyService,
             WebhookServiceDispatcher webhookServiceDispatcher,
             MustacheMessageBuilder messageBuilder) {
         this.notifyService = notifyService;
@@ -82,13 +82,13 @@ public class NotifyController {
             @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
             HttpServletRequest request
     ) throws Exception {
-        notifyService.send(new Notify(service,
-                                      defaultMessage(service, message, request),
-                                      thumbnailUrl,
-                                      imageUrl,
-                                      "",
-                                      "",
-                                      sticker));
+        notifyService.send(new NotifyMessage(service,
+                                             defaultMessage(service, message, request),
+                                             thumbnailUrl,
+                                             imageUrl,
+                                             "",
+                                             "",
+                                             sticker));
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 
@@ -104,13 +104,13 @@ public class NotifyController {
             @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
             HttpServletRequest request
     ) throws Exception {
-        notifyService.send(new Notify(service,
-                                      defaultMessage(service, message, request),
-                                      thumbnailUrl,
-                                      imageUrl,
-                                      "",
-                                      accessToken,
-                                      sticker));
+        notifyService.send(new NotifyMessage(service,
+                                             defaultMessage(service, message, request),
+                                             thumbnailUrl,
+                                             imageUrl,
+                                             "",
+                                             accessToken,
+                                             sticker));
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);
     }
 

@@ -5,8 +5,6 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -17,7 +15,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("unused")
 @NoArgsConstructor
 @Getter
-public class Notify {
+public class NotifyMessage {
 
     private String service;
     private String message;
@@ -29,8 +27,16 @@ public class Notify {
     private String tokenKey;
     private List<String> accessToken;
 
-    public Notify(@NotNull String service, @NotNull String message,
-                  String thumbnailUri, String imageUri, List<String> accessToken) {
+    public NotifyMessage(@NotNull String service, @NotNull String message, List<String> accessToken) {
+        this.service = service;
+        this.message = message;
+        thumbnailUri = "";
+        imageUri = "";
+        this.accessToken = accessToken;
+    }
+
+    public NotifyMessage(@NotNull String service, @NotNull String message,
+                         String thumbnailUri, String imageUri, List<String> accessToken) {
         this.service = service;
         this.message = message;
         this.thumbnailUri = thumbnailUri;
@@ -38,9 +44,9 @@ public class Notify {
         this.accessToken = accessToken;
     }
 
-    public Notify(@NotNull String service, @NotNull String message,
-                  String thumbnailUri, String imageUri,
-                  String tokenKey, String accessToken, String sticker) {
+    public NotifyMessage(@NotNull String service, @NotNull String message,
+                         String thumbnailUri, String imageUri,
+                         String tokenKey, String accessToken, String sticker) {
         this.service = service;
         this.message = message;
         this.thumbnailUri = thumbnailUri;
@@ -52,7 +58,7 @@ public class Notify {
     /**
      * @param sticker - 'stickerPackageId,stickerId' example: 123,1
      */
-    public Notify sticker(String sticker) {
+    public NotifyMessage sticker(String sticker) {
         if (StringUtils.isNotBlank(sticker)) {
             List<String> items = Splitter.on(",").limit(2).splitToList(sticker);
             if (2 == items.size()) {
@@ -63,7 +69,7 @@ public class Notify {
         return this;
     }
 
-    public Notify accessToken(String accessToken) {
+    public NotifyMessage accessToken(String accessToken) {
         if (this.accessToken == null) {
             this.accessToken = Lists.newArrayList();
         }
@@ -71,17 +77,17 @@ public class Notify {
         return this;
     }
 
-    public Notify accessToken(List<String> accessToken) {
+    public NotifyMessage accessToken(List<String> accessToken) {
         this.accessToken = accessToken;
         return this;
     }
 
-    public Notify stickerId(String stickerId) {
+    public NotifyMessage stickerId(String stickerId) {
         this.stickerId = stickerId;
         return this;
     }
 
-    public Notify stickerPackageId(String stickerPackageId) {
+    public NotifyMessage stickerPackageId(String stickerPackageId) {
         this.stickerPackageId = stickerPackageId;
         return this;
     }

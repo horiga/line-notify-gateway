@@ -1,8 +1,12 @@
 line-notify:
-    personal-access-token: your_personal_access_token
     endpoint-uri: https://notify-api.line.me/api/notify
     data-path: data.json
     mustache-template-path: message-template/
+    http-client:
+      connect-timeout: 3000
+      read-timeout: 3000
+      write-timeout: 5000
+      log-level: BODY
 
 plugins:
   line-notify:

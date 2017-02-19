@@ -21,7 +21,13 @@ public interface TemplateRepository {
             + " WHERE group_id = #{groupId}")
     List<TemplateEntity> findTemplateByGroup(@Param("groupId") String groupId);
 
-    @Select("SELECT template FROM template "
+    @Select("SELECT * FROM template "
+            + " WHERE group_id = #{groupId} "
+            + " AND mapping_value = #{mappingValue}")
+    TemplateEntity getTemplateEntity(@Param("groupId") String groupId,
+                       @Param("mappingValue") String mappingValue);
+
+    @Select("SELECT content FROM template "
             + " WHERE group_id = #{groupId} "
             + " AND mapping_value = #{mappingValue}")
     String getTemplate(@Param("groupId") String groupId,

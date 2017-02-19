@@ -2,7 +2,9 @@ package org.horiga.linenotifygateway.config;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.horiga.linenotifygateway.config.LineNotifyGatewayProperties.HttpClientProperties;
 import org.horiga.linenotifygateway.service.GitHubWebhookHandler;
 import org.horiga.linenotifygateway.service.WebhookHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,12 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import com.google.common.net.HttpHeaders;
 
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.logging.HttpLoggingInterceptor.Level;
 
 @Configuration
 @Slf4j
@@ -33,8 +39,8 @@ public class LineNotifyGatewayConfig {
     @Bean(name = "lineNotifyRestTemplate")
     RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder
-                .setConnectTimeout(properties.getConnectTimeout())
-                .setReadTimeout(properties.getReadTimeout())
+                .setConnectTimeout(properties.getHttpClient().getConnectTimeout())
+                .setReadTimeout(properties.getHttpClient().getReadTimeout())
                 .additionalMessageConverters(new MappingJackson2HttpMessageConverter())
                 .errorHandler(new DefaultResponseErrorHandler() {
                     @SuppressWarnings("RedundantThrowsDeclaration")
@@ -47,7 +53,7 @@ public class LineNotifyGatewayConfig {
                                                     .append(Joiner.on(",")
                                                                   .skipNulls()
                                                                   .join(header.getValue())));
-                        log.warn("Receive LINE Notify API Error, [{} {}], HTTP Header: {}",
+                        log.warn("Receive LINE NotifyMessage API Error, [{} {}], HTTP Header: {}",
                                  response.getStatusCode().value(),
                                  response.getStatusText(), s);
                         super.handleError(response);
@@ -63,4 +69,24 @@ public class LineNotifyGatewayConfig {
         webhookHandlers.put(githubWebhookHandler.getWebhookServiceName(), githubWebhookHandler);
         return webhookHandlers;
     }
+
+    @Bean
+    OkHttpClient okHttpClient() {
+        final HttpClientProperties props = properties.getHttpClient();
+        return new OkHttpClient.Builder()
+                .connectTimeout(props.getConnectTimeout(), TimeUnit.MILLISECONDS)
+                .readTimeout(props.getReadTimeout(), TimeUnit.MILLISECONDS)
+                .writeTimeout(props.getWriteTimeout(), TimeUnit.MILLISECONDS)
+                .followRedirects(false)
+                .addInterceptor(
+                        new HttpLoggingInterceptor()
+                                .setLevel(Level.valueOf(props.getLogLevel().toUpperCase()))
+                )
+                .addInterceptor(chain -> chain.proceed(
+                        chain.request().newBuilder()
+                             .header(HttpHeaders.USER_AGENT, "LineNotifyGateway")
+                             .build()))
+                .build();
+    }
+
 }

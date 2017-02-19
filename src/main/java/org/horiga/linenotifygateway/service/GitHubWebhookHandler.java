@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.horiga.linenotifygateway.config.GitHubLineNotifyGatewayProperties;
-import org.horiga.linenotifygateway.model.Notify;
+import org.horiga.linenotifygateway.model.NotifyMessage;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class GitHubWebhookHandler extends WebhookHandler {
 
-    private final LINENotifyClient notifyService;
+    private final NotifyMessageClient notifyMessageClient;
     private final List<String> eventTypes;
     private final MustacheMessageBuilder messageBuilder;
     private final ObjectMapper mapper;
@@ -77,12 +77,12 @@ public class GitHubWebhookHandler extends WebhookHandler {
 
     @Autowired
     public GitHubWebhookHandler(
-            LINENotifyClient notifyService,
+            NotifyMessageClient notifyMessageClient,
             GitHubLineNotifyGatewayProperties properties,
             MustacheMessageBuilder messageBuilder,
             ObjectMapper mapper) {
         super("github");
-        this.notifyService = notifyService;
+        this.notifyMessageClient = notifyMessageClient;
         eventTypes = ImmutableList.copyOf(properties.getEventTypes());
         this.messageBuilder = messageBuilder;
         this.mapper = mapper;
@@ -98,13 +98,13 @@ public class GitHubWebhookHandler extends WebhookHandler {
                      thisEvent, mapper.writeValueAsString(message));
             return;
         }
-        notifyService.send(new Notify(getWebhookServiceName(),
-                                         buildMessage(thisEvent, message, request),
-                                         "",
-                                         "",
-                                         tokenKey,
-                                         StringUtils.defaultString(request.getParameter("notify_token"), ""),
-                                         getStickerWithGitHubEventName(thisEvent)));
+        notifyMessageClient.send(new NotifyMessage(getWebhookServiceName(),
+                                                   buildMessage(thisEvent, message, request),
+                                                   "",
+                                                   "",
+                                                   tokenKey,
+                                                   StringUtils.defaultString(request.getParameter("notify_token"), ""),
+                                                   getStickerWithGitHubEventName(thisEvent)));
     }
 
     protected boolean supportEvents(String event) {

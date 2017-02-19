@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS `template` (
   `mapping_value` VARCHAR(300) NOT NULL DEFAULT 'push, issues, issue_comment...',
   `description` VARCHAR(40) NOT NULL DEFAULT '',
   `content` VARCHAR(1000) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_template_key` (`group_id`,`mapping_value`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- system alert direct message
@@ -46,8 +47,8 @@ INSERT INTO service(`service_id`, `display_name`, `type`, `template_group_id`, `
 INSERT INTO service(`service_id`, `display_name`, `type`, `template_group_id`, `template_mapping_type`, `template_mapping_value`, `description`) VALUES ('github', 'GitHub Enterprise', 'payload', 'ghe_default', 'http.header', 'X-GitHub-Event', 'GitHub webhook service');
 
 -- simple direct message
-INSERT INTO template_group(`group_id`, `display_name`, `description`) VALUES('simple_direct', 'Direct message', 'A simple message notify message');
-INSERT INTO template(`id`, `group_id`, `mapping_value`, `description`, `content`) VALUES('10001', 'simple_direct', 'none', 'A simple direct message, for CLI', '[#{service}]\n #{message}');
+INSERT INTO template_group(`group_id`, `display_name`, `description`) VALUES('simple_direct', 'Direct message', 'A simple notify message');
+INSERT INTO template(`id`, `group_id`, `mapping_value`, `description`, `content`) VALUES('10001', 'simple_direct', 'none', 'A simple direct message, for CLI', '{{{message}}}');
 
 -- github enterprise
 INSERT INTO template_group(`group_id`, `display_name`, `description`) VALUES('ghe_default', 'GitHub Enterprise Webhook', 'A template for GitHub Enterprise webhook events');
