@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.horiga.linenotifygateway.entity.ServiceEntity;
+import org.horiga.linenotifygateway.entity.TemplateEntity;
+import org.horiga.linenotifygateway.exception.MessageFilterException;
 import org.horiga.linenotifygateway.exception.NotifyException;
 import org.horiga.linenotifygateway.model.NotifyMessage;
 import org.horiga.linenotifygateway.repository.ServiceRepository;
@@ -126,7 +128,6 @@ public class MessageDispatcher {
         private String eventId;
         private Set<String> metricNames;
 
-
         public Set<String> fullNames() {
             if (Objects.isNull(metricNames)) {
                 return Sets.newHashSet();
@@ -162,26 +163,33 @@ public class MessageDispatcher {
         handleMessage(serviceEntity, message);
     }
 
-    private void handleMessage(ServiceEntity serviceEntity, Message message)
-            throws NotifyException {
-        final String template = parseMessageTemplate(serviceEntity, message)
-                .orElseThrow(() -> new NotifyException("Non mappings template message."));
+    private void handleMessage(ServiceEntity serviceEntity, Message message) throws NotifyException {
+        try {
 
-        final String messageBody = buildMessageText(serviceEntity.getServiceId()
-                                                    + '-' + serviceEntity.getTemplateGroupId()
-                                                    + '-' + serviceEntity.getTemplateMappingValue(),
-                                                    template,
-                                                    MESSAGE_TYPE_PAYLOAD
-                                                            .equalsIgnoreCase(serviceEntity.getType())
-                                                    && message.isPayloadMessage()
-                                                    ? message.getParameterMap() : message.getPayload());
+            final TemplateEntity templateEntity = parseMessageTemplate(serviceEntity, message)
+                    .orElseThrow(() -> new NotifyException("Non mappings template message."));
 
-        notifyClient.send(new NotifyMessage(serviceEntity.getServiceId(),
-                                            messageBody,
-                                            accessToken(serviceEntity.getServiceId(), message)));
+            // TODO
+            surveyMetrics(null);
+
+            notifyClient.send(new NotifyMessage(serviceEntity.getServiceId(),
+                                                buildMessageText(templateName(serviceEntity),
+                                                                 templateEntity.getContent(),
+                                                                 MESSAGE_TYPE_PAYLOAD.equalsIgnoreCase(
+                                                                         serviceEntity.getType())
+                                                                 && message.isPayloadMessage()
+                                                                 ? message.getParameterMap() :
+                                                                 message.getPayload()),
+                                                accessToken(serviceEntity.getServiceId(), message))
+                                      .sticker(templateEntity.getSticker()));
+
+        } catch (MessageFilterException filtered) {
+            log.warn("This event was filtered, ", filtered);
+        }
     }
 
-    public Optional<String> parseMessageTemplate(ServiceEntity serviceEntity, Message message) {
+    public Optional<TemplateEntity> parseMessageTemplate(ServiceEntity serviceEntity, Message message)
+            throws MessageFilterException {
 
         // TODO refactoring
 
@@ -210,16 +218,21 @@ public class MessageDispatcher {
 
         // TODO: template entity added to LINE sticker's meta data.
 
-        return Optional.ofNullable(templateRepository.getTemplate(serviceEntity.getTemplateGroupId(),
-                                                                  templateMappingValue));
+        return Optional.ofNullable(templateRepository.getTemplateEntity(serviceEntity.getTemplateGroupId(),
+                                                                        templateMappingValue));
     }
 
-    public List<String> accessToken(final String serviceId, Message message) {
+    public List<String> accessToken(String serviceId, Message message) {
         String parameterizeAccessToken = message.getOrigin().getParameter("notify_token");
         if (StringUtils.isNotBlank(parameterizeAccessToken)) {
             return Splitter.on(",").omitEmptyStrings().trimResults().splitToList(parameterizeAccessToken);
         }
         return tokenRepository.getAccessTokenList(serviceId);
+    }
+
+    private static String templateName(ServiceEntity serviceEntity) {
+        return serviceEntity.getServiceId() + '-' + serviceEntity.getTemplateGroupId() + '-' + serviceEntity
+                .getTemplateMappingValue();
     }
 
     public String buildMessageText(String name, String template, Map<String, Object> scope) {
@@ -232,6 +245,9 @@ public class MessageDispatcher {
     }
 
     private void surveyMetrics(Metrics metrics) {
+        if (Objects.isNull(metrics)) {
+            return;
+        }
         metrics.fullNames().forEach(name -> metricRegistry.counter("notify.counter." + name).inc());
     }
 }

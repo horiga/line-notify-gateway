@@ -1,19 +1,14 @@
 package org.horiga.linenotifygateway.controller.admin;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.ServiceForm;
-import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.TokenForm;
-import org.horiga.linenotifygateway.entity.ServiceEntity;
-import org.horiga.linenotifygateway.entity.TokenEntity;
-import org.horiga.linenotifygateway.repository.ServiceRepository;
-import org.horiga.linenotifygateway.repository.TokenRepository;
+import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.Service;
+import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.Support;
+import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.Template;
+import org.horiga.linenotifygateway.controller.admin.APIsController.Forms.Token;
 import org.horiga.linenotifygateway.service.ManagementService;
 import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.google.common.collect.Maps;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,82 +29,154 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@SuppressWarnings("unused")
 @RequestMapping("/api")
 @RestController
 public class APIsController {
 
     private final ManagementService managementService;
 
-    private final TokenRepository tokenRepository;
-
-    private final ServiceRepository serviceRepository;
-
-    private final WebhookServiceDispatcher webhookServiceDispatcher;
-
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
-    public APIsController(ManagementService managementService, TokenRepository tokenRepository,
-                          ServiceRepository serviceRepository,
+    public APIsController(ManagementService managementService,
                           WebhookServiceDispatcher webhookServiceDispatcher) {
         this.managementService = managementService;
-        this.tokenRepository = tokenRepository;
-        this.serviceRepository = serviceRepository;
-        this.webhookServiceDispatcher = webhookServiceDispatcher;
     }
 
     public static class Forms {
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class TokenForm {
-            @NotNull
-            @Max(10)
-            @Pattern(regexp = "[0-9a-zA-Z]+")
-            String sid;
-            @NotNull
-            @Max(33)
-            @Pattern(regexp = "[0-9a-zA-Z]+")
-            String token;
-            @NotNull
-            @Max(300)
-            String description;
-            @NotNull
-            @Max(300)
-            String owner;
+
+        public static class Token {
+            @Data
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class Add {
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String sid;
+                @NotNull
+                @Max(33)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String token;
+                @NotNull
+                @Max(300)
+                String des; // description
+                @NotNull
+                @Max(300)
+                String owner;
+            }
         }
 
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class ServiceForm {
-            @NotNull
-            @Max(10)
-            @Pattern(regexp = "[0-9a-zA-Z]+")
-            String sid;
+        public static class Service {
 
-            @NotNull
-            @Max(100)
-            String dn;
+            @Data
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class Add {
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String sid;
 
-            @NotNull
-            @Max(10)
-            String type; // 'direct', 'payload'
+                @NotNull
+                @Max(100)
+                String dn; // displayName
 
-            @NotNull
-            @Max(10)
-            String tg_id;
+                @NotNull
+                @Max(10)
+                String type; // 'direct', 'payload'
 
-            @NotNull
-            @Max(30)
-            String tm_type; // http.header, http.parameter
+                @NotNull
+                @Max(10)
+                String tg_id; // template group identifier
 
-            @NotNull
-            @Max(30)
-            String tm_value; // `x-github-event`
+                @NotNull
+                @Max(30)
+                String tm_type; // template mapping type - http.header, http.parameter
 
-            @NotNull
-            @Max(300)
-            String description;
+                @NotNull
+                @Max(30)
+                String tm_value; // template mapping value - `x-github-event`
+
+                @NotNull
+                @Max(300)
+                String des; // description
+            }
+
+            @Data
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class TemplateMappings {
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String sid;
+
+                @NotNull
+                @Max(10)
+                String tg_id;
+
+                @NotNull
+                @Max(30)
+                String tm_type;
+
+                @NotNull
+                @Max(30)
+                String tm_value;
+            }
+
+        }
+
+        public static class Template {
+
+            @Data
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class Add {
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String gid;
+
+                @NotNull
+                @Max(100)
+                String event; // ex) push, issues, issue_comment
+
+                @NotNull
+                @Max(100)
+                String des; // description
+
+                @NotNull
+                @Max(500)
+                String content;
+            }
+        }
+
+        public static class Support {
+            @Data
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class Duplicate {
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String from_gid;
+
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String to_gid;
+
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String to_gdn; // displayName
+
+                @NotNull
+                @Max(10)
+                @Pattern(regexp = "[0-9a-zA-Z]+")
+                String to_gdes; // description
+            }
         }
     }
 
@@ -121,60 +187,118 @@ public class APIsController {
         Object content;
     }
 
-    @GetMapping("/dispatchers")
-    public ResponseEntity<AjaxResponse> getWebhookDispatcher() {
-        return responseEntity(webhookServiceDispatcher.getAvailableDispatcher());
-    }
+    // service
 
-    @GetMapping({ "/", "" })
-    public ResponseEntity<AjaxResponse> getData() {
-        final Map<String, Object> content = Maps.newTreeMap();
-        content.put("service", serviceRepository.findAll());
-        content.put("token", tokenRepository.findAll().stream()
-                                            .collect(Collectors.groupingBy(TokenEntity::getServiceId)));
-        return responseEntity(content);
-    }
-
-    @GetMapping("/service")
+    @GetMapping({ "/service", "/services" })
     public ResponseEntity<AjaxResponse> getServices() {
-        return responseEntity(serviceRepository.findAll());
+        return responseEntity(managementService.getServices());
+    }
+
+    @GetMapping("/service/{sid}")
+    public ResponseEntity<AjaxResponse> getService(
+            @PathVariable(name = "sid") String serviceIdentifier
+    ) {
+        return responseEntity(managementService.getServiceDetails(serviceIdentifier));
     }
 
     @PostMapping("/service")
-    public ResponseEntity<AjaxResponse> newService(
-            @RequestParam(name="from", required = false, defaultValue = "") String from, // 'github' or 'alert'
-            @Valid ServiceForm form,
+    public ResponseEntity<AjaxResponse> entryService(
+            @Valid Service.Add f,
             BindingResult results) {
-        final ServiceEntity entity =
-                new ServiceEntity(form.sid, form.dn, form.type, form.tg_id, form.tm_type, form.tm_value,
-                                  form.description);
-        serviceRepository.insert(entity);
-        return responseEntity(entity);
+        return responseEntity(managementService.newService(f.sid, f.dn, f.type, f.tg_id, f.tm_type, f.tm_value,
+                                                           f.des));
     }
 
+    @PostMapping("/service/mapping-condition")
+    public ResponseEntity<AjaxResponse> updateMappingCondition(
+            @Valid Service.TemplateMappings f,
+            BindingResult results) throws Exception {
+        return responseEntity(managementService
+                                      .updateTemplateGroupMappingCondition(f.sid,
+                                                                           f.tg_id,
+                                                                           f.tm_type,
+                                                                           f.tm_value));
+    }
+
+    // token
+
     @GetMapping("/token")
-    public ResponseEntity<AjaxResponse> getTokens(@RequestParam("sid") String sid) {
-        return responseEntity(tokenRepository.findByServiceId(sid));
+    public ResponseEntity<AjaxResponse> getTokensWithQuery(
+            @RequestParam("sid") String serviceIdentifier) {
+        return responseEntity(managementService.getTokens(serviceIdentifier));
+    }
+
+    @GetMapping("/token/{sid}")
+    public ResponseEntity<AjaxResponse> getTokens(
+            @PathVariable("sid") String serviceIdentifier) {
+        return responseEntity(managementService.getTokens(serviceIdentifier));
     }
 
     @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
     @PostMapping("/token")
     public ResponseEntity<AjaxResponse> activateToken(
-            @Valid TokenForm form, BindingResult results) {
+            @Valid Token.Add f,
+            BindingResult results) {
         return responseEntity(
-                managementService.activateToken(form.sid, form.token, form.description, form.owner));
+                managementService.activateToken(f.sid, f.token, f.des, f.owner));
     }
 
-    @DeleteMapping("/token")
+    @DeleteMapping("/token/{sid}/{id}")
     public ResponseEntity<AjaxResponse> invalidateToken(
-            @RequestParam("sid") String sid, @RequestParam("id") String id) {
+            @PathVariable("sid") String sid, @PathVariable("id") String id) {
         managementService.invalidateToken(sid, id);
         return responseEntity(null);
     }
 
-    @DeleteMapping("/all-token")
-    public ResponseEntity<AjaxResponse> invalidateToken(@RequestParam("sid") String sid) {
-        managementService.invalidateAllToken(sid);
+    @DeleteMapping("/token/{sid}")
+    public ResponseEntity<AjaxResponse> invalidateToken(
+            @RequestParam("sid") String serviceIdentifier) {
+        managementService.invalidateAllToken(serviceIdentifier);
+        return responseEntity(null);
+    }
+
+    // templates
+
+    @GetMapping("/template-groups")
+    public ResponseEntity<AjaxResponse> getTemplateGroups() {
+        return responseEntity(managementService.getTemplateGroups());
+    }
+
+    @GetMapping("/template")
+    public ResponseEntity<AjaxResponse> getTemplatesWithQuery(
+            @RequestParam("gid") String groupIdentifier) {
+        return responseEntity(managementService.getTemplates(groupIdentifier));
+    }
+
+    @GetMapping("/template/{gid}")
+    public ResponseEntity<AjaxResponse> getTemplates(
+            @PathVariable("gid") String groupIdentifier) {
+        return responseEntity(managementService.getTemplates(groupIdentifier));
+    }
+
+    @PostMapping("/template")
+    public ResponseEntity<AjaxResponse> entryTemplateMessage(
+            @Valid Template.Add f,
+            BindingResult results
+    ) {
+        return responseEntity(managementService.addTemplate(f.gid, f.event, f.des, f.content));
+    }
+
+    @PostMapping("/template/{tid}")
+    public ResponseEntity<AjaxResponse> updateTemplateContent(
+            @PathVariable("tid") String templateIdentifier, @RequestParam("content") String content
+    ) {
+        managementService.updateTemplateContent(templateIdentifier, content);
+        return responseEntity(null);
+    }
+
+    // supports
+
+    @PostMapping("/supports/duplicate-template-group")
+    public ResponseEntity<AjaxResponse> duplicateTemplateGroup(
+            @Valid Support.Duplicate f,
+            BindingResult results) {
+        managementService.duplicateFromTemplateGroup(f.from_gid, f.to_gid, f.to_gdn, f.to_gdes);
         return responseEntity(null);
     }
 
@@ -182,6 +306,5 @@ public class APIsController {
         return new ResponseEntity<>(AjaxResponse.builder().success(true).content(content).build(),
                                     HttpStatus.OK);
     }
-
 
 }

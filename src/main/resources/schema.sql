@@ -33,11 +33,21 @@ DROP TABLE IF EXISTS template;
 CREATE TABLE IF NOT EXISTS `template` (
   `id` VARCHAR(33) NOT NULL DEFAULT '',
   `group_id` VARCHAR(100) NOT NULL DEFAULT '',
-  `mapping_value` VARCHAR(300) NOT NULL DEFAULT 'push, issues, issue_comment...',
-  `description` VARCHAR(40) NOT NULL DEFAULT '',
+  `mapping_value` VARCHAR(30) NOT NULL DEFAULT 'push, issues, issue_comment...',
+  `description` VARCHAR(100) NOT NULL DEFAULT '',
+  `sticker` VARCHAR(100) NOT NULL DEFAULT '',
   `content` VARCHAR(1000) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_template_key` (`group_id`,`mapping_value`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS message_filter;
+CREATE TABLE IF NOT EXISTS `message_filter` (
+  `id` VARCHAR(33) NOT NULL DEFAULT '',
+  `group_id` VARCHAR(30) NOT NULL DEFAULT '',
+  `mapping_value` VARCHAR(30) NOT NULL DEFAULT '',
+  `condition` VARCHAR(30) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- system alert direct message

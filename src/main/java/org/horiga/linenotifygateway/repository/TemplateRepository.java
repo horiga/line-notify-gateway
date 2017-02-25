@@ -38,8 +38,8 @@ public interface TemplateRepository {
     void addTemplateGroup(TemplateGroupEntity group);
 
     @Insert("INSERT INTO "
-            + "template(`id`, `group_id`, `mapping_value`, `description`, `content`) "
-            + "VALUES(#{id}, #{groupId}, #{mappingValue}, #{description}, #{content})")
+            + "template(`id`, `group_id`, `mapping_value`, `description`, `sticker`, `content`) "
+            + "VALUES(#{id}, #{groupId}, #{mappingValue}, #{description}, #{sticker}, #{content})")
     void addTemplate(TemplateEntity message);
 
     @Update("UPDATE template "

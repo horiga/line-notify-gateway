@@ -38,6 +38,8 @@ public class NotifyGatewayController {
             @RequestParam(name = "thumbnail_url", required = false, defaultValue = "") String thumbnailUrl,
             @RequestParam(name = "image_url", required = false, defaultValue = "") String imageUrl,
             @RequestParam(name = "sticker", required = false, defaultValue = "") String sticker,
+            @RequestParam(name = "sticker_id", required = false, defaultValue = "") String stickerId,
+            @RequestParam(name = "sticker_pkg_id", required = false, defaultValue = "") String stickerPackageId,
             HttpServletRequest servletRequest
     ) {
         return new ResponseEntity<>(ResponseMessage.SUCCESS, HttpStatus.OK);

@@ -27,7 +27,7 @@ public interface TokenRepository {
     List<String> getAccessTokenList(@Param("serviceId") String id);
 
     @Insert("INSERT INTO token(`id`, `service_id`, `token`, `description`, `owner`) "
-            + "VALUES(#{id}, #{service}, #{token}, #{description}, #{owner})")
+            + "VALUES(#{id}, #{serviceId}, #{token}, #{description}, #{owner})")
     void insert(TokenEntity entity);
 
     @Delete("DELETE FROM token WHERE id = #{id} AND service_id = #{serviceId}")

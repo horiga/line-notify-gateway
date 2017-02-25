@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TemplateEntity {
+public class MessageFilterEntity {
     private String id;
     private String groupId;
     private String mappingValue;
-    private String description;
-    private String sticker;
-    private String content;
+    private String condition;
 }

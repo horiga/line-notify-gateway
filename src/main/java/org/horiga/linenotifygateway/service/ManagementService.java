@@ -56,10 +56,24 @@ public class ManagementService {
         return serviceRepository.findAll();
     }
 
-    public ServiceEntity changeServiceAssignedTemplateGroupConditions(@NotNull String serviceIdentifier,
-                                                                      @NotNull String templateGroupIdentifier,
-                                                                      String templateMappingType,
-                                                                      String templateMappingValue)
+    public ServiceEntity newService(@NotNull String serviceIdentifier,
+                                    @NotNull String displayName,
+                                    @NotNull String type,
+                                    @NotNull String templateGroupIdentifier,
+                                    @NotNull String templateMappingType,
+                                    @NotNull String templateMappingValue,
+                                    @NotNull String description) {
+        final ServiceEntity entry =
+                new ServiceEntity(serviceIdentifier, displayName, type, templateGroupIdentifier,
+                                  templateMappingType, templateMappingValue, description);
+        serviceRepository.insert(entry);
+        return entry;
+    }
+
+    public ServiceEntity updateTemplateGroupMappingCondition(@NotNull String serviceIdentifier,
+                                                             @NotNull String templateGroupIdentifier,
+                                                             String templateMappingType,
+                                                             String templateMappingValue)
             throws Exception {
         ServiceEntity changes = serviceRepository.findById(serviceIdentifier);
         if (Objects.isNull(changes)) {
@@ -87,7 +101,7 @@ public class ManagementService {
                                      String description,
                                      @NotNull String owner) {
         final TokenEntity newEntity = new TokenEntity(newIdentify(ID_PREFIX_TOKEN), serviceIdentifier, token,
-                                                     StringUtils.defaultString(description, ""), owner);
+                                                      StringUtils.defaultString(description, ""), owner);
         tokenRepository.insert(newEntity);
         return newEntity;
     }
@@ -99,6 +113,18 @@ public class ManagementService {
 
     public void invalidateAllToken(@NotNull String serviceIdentifier) {
         tokenRepository.deleteWithServiceId(serviceIdentifier);
+    }
+
+    public List<TokenEntity> getTokens(@NotNull String serviceIdentifier) {
+        return tokenRepository.findByServiceId(serviceIdentifier);
+    }
+
+    public List<TemplateGroupEntity> getTemplateGroups() {
+        return templateRepository.findGroups();
+    }
+
+    public List<TemplateEntity> getTemplates(String groupIdentifier) {
+        return templateRepository.findTemplateByGroup(groupIdentifier);
     }
 
     public void duplicateFromTemplateGroup(@NotNull String fromTemplateGroupIdentifier,
@@ -116,15 +142,17 @@ public class ManagementService {
                         new TemplateEntity(newIdentify(ID_PREFIX_MESSAGE_TEMPLATE), toTemplateGroupIdentifier,
                                            t.getMappingValue(),
                                            StringUtils.defaultString(t.getDescription(), ""),
+                                           t.getSticker(),
                                            t.getContent())));
     }
 
     public TemplateEntity addTemplate(String groupIdentifier, String mappingValue, String description,
-                                      String content) {
+                                      String sticker, String content) {
         final TemplateEntity newEntity = new TemplateEntity(newIdentify(ID_PREFIX_MESSAGE_TEMPLATE),
                                                             groupIdentifier,
-                                                            StringUtils.defaultString(description, "none"),
+                                                            StringUtils.defaultString(mappingValue, "none"),
                                                             StringUtils.defaultString(description, ""),
+                                                            StringUtils.defaultString(sticker, ""),
                                                             content);
         templateRepository.addTemplate(newEntity);
         return newEntity;
@@ -135,6 +163,7 @@ public class ManagementService {
         templateRepository.updateTemplate(templateIdentifier, content);
     }
 
+    @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
     protected static String newIdentify(String prefix) {
         return prefix + UUID.randomUUID().toString().replaceAll("-", "");
     }
