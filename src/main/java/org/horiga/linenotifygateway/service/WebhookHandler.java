@@ -15,6 +15,7 @@ public abstract class WebhookHandler {
         this.webhookServiceName = webhookServiceName;
     }
 
-    public abstract void handleMessage(Map<String, Object> message, HttpServletRequest request) throws Exception;
-
+    public abstract void handleMessage(String tokenKey,
+                                       Map<String, Object> payload,
+                                       HttpServletRequest request) throws Exception;
 }

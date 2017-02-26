@@ -1,8 +1,12 @@
 line-notify:
-    personal-access-token: your_personal_access_token
     endpoint-uri: https://notify-api.line.me/api/notify
     data-path: data.json
-    mustache-template-path: templates/
+    mustache-template-path: message-template/
+    http-client:
+      connect-timeout: 3000
+      read-timeout: 3000
+      write-timeout: 5000
+      log-level: BODY
 
 plugins:
   line-notify:
@@ -15,11 +19,31 @@ plugins:
         - pull_request_review
         - pull_request_review_comment
         - release
-
 server:
-  port: 18081
+  port: 8080
 
 management:
   port: 28081
   add-application-context-header: false
-  context-path: /management
+  context-path: /spring-actuator
+
+spring:
+  freemarker:
+    charset: UTF-8
+    cache: false
+    settings:
+      template_exception_handler: rethrow
+      default_encoding: UTF-8
+  datasource:
+    hikari:
+      driver-class-name: org.h2.jdbcx.JdbcDataSource
+      jdbc-url: jdbc:h2:file:~/.line-notify-gateway/h2/lng.h2db;MODE=MYSQL;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS "public"
+      username: sa
+      password:
+      connection-timeout: 3000
+
+mybatis:
+  configuration:
+    cache-enabled: false
+    map-underscore-to-camel-case: true
+

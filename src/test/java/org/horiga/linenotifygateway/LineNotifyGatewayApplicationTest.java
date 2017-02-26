@@ -7,10 +7,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class LineNotifyGatewayApplicationTests {
-
-	@Test
-	public void contextLoads() {
-	}
-
+public class LineNotifyGatewayApplicationTest {
+    @Test
+    public void contextLoads() {
+    }
 }
