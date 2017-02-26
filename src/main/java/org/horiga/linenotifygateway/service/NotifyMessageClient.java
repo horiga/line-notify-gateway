@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.horiga.linenotifygateway.config.LineNotifyGatewayProperties;
 import org.horiga.linenotifygateway.model.NotifyMessage;
@@ -42,9 +44,9 @@ public class NotifyMessageClient {
 
     @Autowired
     public NotifyMessageClient(
-            OkHttpClient okHttpClient,
-            LineNotifyGatewayProperties properties,
-            GaugeService gaugeService) {
+            @NotNull OkHttpClient okHttpClient,
+            @NotNull LineNotifyGatewayProperties properties,
+            @NotNull GaugeService gaugeService) {
         this.okHttpClient = okHttpClient;
         endpointURI = properties.getEndpointUri();
         this.gaugeService = gaugeService;
@@ -106,7 +108,7 @@ public class NotifyMessageClient {
                 .forEach(name -> rateLimits.put(name.toLowerCase(), response.header(name)));
         log.info("LINE NotifyMessage API Rate Limit: accessToken:{}, rateLimit: {}", accessToken, rateLimits);
         LINE_NOTIFY_RATE_LIMIT_NAMES.forEach(key -> gaugeService.submit(
-                "LINENotify.RateLimits." + key + '.' + accessToken,
+                "Notify.RateLimits.".toLowerCase() + key.toLowerCase() + '.' + accessToken,
                 Double.parseDouble(
                         (String) rateLimits.getOrDefault(("X-RateLimit-" + key).toLowerCase(), "0"))));
     }
