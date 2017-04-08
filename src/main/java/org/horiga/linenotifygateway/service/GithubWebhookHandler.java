@@ -24,6 +24,7 @@ public class GithubWebhookHandler extends WebhookHandler {
     private final String accessToken;
     private final MustacheMessageBuilder messageBuilder;
     private final ObjectMapper mapper;
+    private final String reviewKeyword;
 
     public GithubWebhookHandler(
             NotifyService notifyService,
@@ -36,6 +37,7 @@ public class GithubWebhookHandler extends WebhookHandler {
         accessToken = properties.getNotifyAccessToken();
         this.messageBuilder = messageBuilder;
         this.mapper = mapper;
+        reviewKeyword = properties.getReviewKeyword();
     }
 
     @Override
@@ -65,13 +67,20 @@ public class GithubWebhookHandler extends WebhookHandler {
     }
 
     protected Notify applySticker(String event, Map<String, Object> message, Notify notify) {
-        // TODO: apply CMS
-        if ("pull_request".equals(event)) {
+
+        if(message.containsKey("_sticker")) {
+            return notify.addSticker((String)message.get("_sticker"));
+        }
+
+        if ("pull_request".equals(event)
+            && "opened".equals(message.getOrDefault("action", "NONE"))) {
             return notify.addSticker("1,106");
         }
-        if ("pull_request_review".equals(event)) {
-            return notify.addSticker("1,134");
-        }
+
+//        if ("pull_request_review".equals(event)) {
+//            return notify.addSticker("1,134");
+//        }
+
         if ("release".equals(event)) {
             return notify.addSticker("2,144");
         }
@@ -83,7 +92,15 @@ public class GithubWebhookHandler extends WebhookHandler {
             Map<String, Object> message,
             HttpServletRequest request
     ) {
-        // TODO: apply CMS
-        return messageBuilder.build("github/" + eventType + ".mustache", message);
+        // type: pull_request, action: labeled
+        String templateName = eventType;
+
+        // WIP:
+        if ("pull_request".equalsIgnoreCase(eventType)
+            && "labeled".equals(message.getOrDefault("action", "NONE"))) {
+            templateName = eventType + "-action_labeled";
+        }
+
+        return messageBuilder.build("github/" + templateName + ".mustache", message);
     }
 }

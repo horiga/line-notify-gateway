@@ -90,12 +90,8 @@ public class NotifyService {
 
     public MultiValueMap<String, String> valueMap(Notify notify) {
         MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
-
-        String _message = notify.getMessage();
-        if (_message.length() >= 1000) {
-            _message = _message.substring(0, 990) + " ...";
-        }
-        valueMap.add("message", _message);
+        String _message = StringUtils.abbreviate(notify.getMessage(), 990);
+        valueMap.add("message", ' ' + StringUtils.chomp(_message.trim()));
         if (StringUtils.isNotBlank(notify.getThumbnailUri())
             && (notify.getThumbnailUri().startsWith("http://")
                 || notify.getThumbnailUri().startsWith("https://"))) {
