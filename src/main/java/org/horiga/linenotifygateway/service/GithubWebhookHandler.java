@@ -77,13 +77,10 @@ public class GithubWebhookHandler extends WebhookHandler {
             return notify.addSticker("1,106");
         }
 
-//        if ("pull_request_review".equals(event)) {
-//            return notify.addSticker("1,134");
-//        }
-
         if ("release".equals(event)) {
             return notify.addSticker("2,144");
         }
+
         return notify;
     }
 

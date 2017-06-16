@@ -5,7 +5,7 @@
 
   <groupId>org.horiga</groupId>
   <artifactId>line-notify-gateway</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <packaging>jar</packaging>
   <name>line-notify-gateway</name>
 
