@@ -101,6 +101,10 @@ public class GithubWebhookHandler extends WebhookHandler {
             && "labeled".equals(message.getOrDefault("action", "NONE"))) {
             templateName = eventType + "-action_labeled";
         }
+        if("pull_request_review".equalsIgnoreCase(eventType)
+            && "submitted".equals(message.getOrDefault("action", "NONE"))) {
+            templateName = eventType + "-action_submitted";
+        }
 
         return messageBuilder.build("github/" + templateName + ".mustache", message);
     }
