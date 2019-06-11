@@ -1,13 +1,10 @@
 package org.horiga.linenotifygateway.config;
 
-import java.io.IOException;
-import java.util.Map;
-
-import org.horiga.linenotifygateway.service.BasicWebhookHandler;
-import org.horiga.linenotifygateway.service.GithubWebhookHandler;
-import org.horiga.linenotifygateway.service.NotifyService;
-import org.horiga.linenotifygateway.service.WebhookHandler;
-import org.horiga.linenotifygateway.service.WebhookServiceDispatcher;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import org.horiga.linenotifygateway.service.*;
 import org.horiga.linenotifygateway.support.MustacheMessageBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -18,11 +15,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Map;
 
 @Configuration
 @Slf4j
@@ -76,11 +70,18 @@ public class LineNotifyGatewayConfig {
     }
 
     @Bean
+    AlertManagerWebhookHandler alertManagerWebhookHandler(NotifyService notifyService, ObjectMapper mapper) {
+        return new AlertManagerWebhookHandler(notifyService, properties, mustacheMessageBuilder(), mapper);
+    }
+
+    @Bean
     WebhookServiceDispatcher webhookServiceDispatcher(
-            ObjectMapper mapper, GithubWebhookHandler githubWebhookHandler) {
+            ObjectMapper mapper, GithubWebhookHandler githubWebhookHandler, AlertManagerWebhookHandler alertManagerWebhookHandler) {
         WebhookHandler defaultWebhookHandler = new BasicWebhookHandler();
         final Map<String, WebhookHandler> webhookHandlers = Maps.newHashMap();
         webhookHandlers.put(githubWebhookHandler.getWebhookServiceName(), githubWebhookHandler);
+        webhookHandlers.put(alertManagerWebhookHandler.getWebhookServiceName(), alertManagerWebhookHandler);
         return new WebhookServiceDispatcher(mapper, webhookHandlers, defaultWebhookHandler);
     }
+
 }
