@@ -21,7 +21,7 @@ public class AlertManagerWebhookHandler extends WebhookHandler {
     public AlertManagerWebhookHandler(NotifyService notifyService, LineNotifyGatewayProperties properties, MustacheMessageBuilder messageBuilder, ObjectMapper mapper) {
         super("alertmanager");
         this.notifyService = notifyService;
-        accessToken = properties.getPersonalAccessToken();
+        this.accessToken = properties.getPersonalAccessToken();
         this.messageBuilder = messageBuilder;
         this.mapper = mapper;
     }

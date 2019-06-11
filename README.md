@@ -11,7 +11,7 @@ $JAVA_HOME/bin/java -Dlogging.file=${YOUR_LOG_DIR} -Dlogging.level.ROOT=${LEVEL}
 
 ### Run from Docker
 ```
-docker run -d -p 18081:18081 -p 28081:28081 --name line-notify-gateway nontster/line-notify-gateway
+docker run -d -p 18081:18081 -e line-notify.personal-access-token='${YOUR_LINE_NOTIFY_PRIVATE_ACCESS_TOKEN}' --name line-notify-gateway nontster/line-notify-gateway
 ```
 
 ## Instant alert
