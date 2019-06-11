@@ -15,16 +15,28 @@ docker run -d -p 18081:18081 -e line-notify.personal-access-token='${YOUR_LINE_N
 ```
 
 ## Instant alert
+
+
 ```
 POST /v1/notify-with-token?noify_token=${YOUR_LINE_NOTIFY_PRIVATE_ACCESS_TOKEN}&notify_service=${YOUR_SERVICE_NAME}&message=${YOUR_MESSAGE}
 ```
-
 * noify_token (required)
 * notify_service (required)
 * message (required)
 * thumbnail_url (optional)
 * image_url (optional)
 * sticker (optional)
+
+If you specify access token via environment variable when start application you can omit noify_token parameter and use below API instead 
+```
+POST /v1/notify?notify_service=${YOUR_SERVICE_NAME}&message=${YOUR_MESSAGE}
+```
+* notify_service (required)
+* message (required)
+* thumbnail_url (optional)
+* image_url (optional)
+* sticker (optional)
+
 
 Sticker list (https://devdocs.line.me/files/sticker_list.pdf)
 
