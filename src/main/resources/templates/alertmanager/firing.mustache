@@ -1,0 +1,7 @@
+Alert {{groupLabels.alertname}} is {{status}}
+Severity {{commonLabels.severity}}
+
+Affected nodes,
+{{#alerts}}
+  - {{labels.instance}}
+{{/alerts}}

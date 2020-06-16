@@ -14,5 +14,7 @@ public class GithubLineNotifyGatewayProperties {
 
     private List<String> eventTypes;
 
+    private String reviewKeyword = "review wanted";
+
     private String notifyAccessToken = "";
 }
