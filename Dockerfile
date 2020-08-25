@@ -16,5 +16,3 @@ RUN apk --update add tzdata
 ENV TZ=Asia/Bangkok
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENV JAVA_OPTS=""
-ENTRYPOINT ["java", "-jar", "/app.jar" ]

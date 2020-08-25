@@ -4,6 +4,20 @@ Message notification via LINE Notify with personal token.
 ## About LINE Notify
 https://notify-bot.line.me/en/
 
+## Build
+
+Maven build package comprises of dockerfile-maven-plugin which automatically create Docker image for line-notify-gateway by default. You have two options to build line-notify-gateway. 
+
+### with Docker running
+
+```
+mvn clean package
+```
+### without Docker running
+```
+mvn clean package -Ddockerfile.skip
+```
+
 ## Run
 ```
 $JAVA_HOME/bin/java -Dlogging.file=${YOUR_LOG_DIR} -Dlogging.level.ROOT=${LEVEL} -jar line-notify-gateway.jar
